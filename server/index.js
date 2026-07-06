@@ -9,6 +9,7 @@ const logger = require('./utils/logger');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const { supabase, isConfigured } = require('./config/supabase');
 
 app.use(helmet());
 app.use(cors({
@@ -19,11 +20,15 @@ app.use(morgan('combined', { stream: { write: msg => logger.info(msg.trim()) } }
 app.use(express.json({ limit: '10mb' }));
 app.use(rateLimiter);
 
-app.get('/api/health', (_req, res) => {
-  const supabaseReady = Boolean(require('./config/supabase'));
+app.get('/api/health', async (_req, res) => {
+  let dbStatus = false;
+  if (isConfigured) {
+    const { error } = await supabase.from('auth.users').select('count', { count: 'exact', head: true });
+    dbStatus = !error;
+  }
   res.json({
     status: 'ok',
-    supabase_connected: supabaseReady,
+    supabase_connected: dbStatus,
     timestamp: new Date().toISOString(),
   });
 });
