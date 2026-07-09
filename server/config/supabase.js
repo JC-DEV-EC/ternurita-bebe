@@ -10,7 +10,7 @@ const isConfigured = Boolean(supabaseUrl && supabaseServiceKey);
 
 if (!isConfigured) {
   console.warn(
-    '⚠ SUPABASE_URL y SUPABASE_SERVICE_ROLE_KEY no configurados en .env. ' +
+    'SUPABASE_URL y SUPABASE_SERVICE_ROLE_KEY no configurados en .env. ' +
     'Las operaciones con base de datos fallarán hasta que se configuren.'
   );
 }

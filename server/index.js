@@ -7,6 +7,9 @@ const { rateLimiter } = require('./middleware/rateLimiter.middleware');
 const { errorHandler } = require('./middleware/errorHandler.middleware');
 const logger = require('./utils/logger');
 
+const checkoutRoutes = require('./routes/checkout.routes');
+const adminRoutes = require('./routes/admin');
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 const { supabase, isConfigured } = require('./config/supabase');
@@ -32,6 +35,9 @@ app.get('/api/health', async (_req, res) => {
     timestamp: new Date().toISOString(),
   });
 });
+
+app.use('/api/checkout', checkoutRoutes);
+app.use('/api/admin', adminRoutes);
 
 app.use(errorHandler);
 
