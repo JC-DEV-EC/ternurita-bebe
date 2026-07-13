@@ -23,16 +23,25 @@ async function cargarUsuario(userId) {
 }
 
 export async function login(email, password) {
+  console.log('1. login called', { email })
+
   const { data, error } = await authSignIn(email, password)
+  console.log('2. authSignIn result:', { data, error })
+
   if (error) {
+    console.log('3. authSignIn ERROR:', error.message)
     showToast(error.message, 'error')
     return { error }
   }
 
+  console.log('4. session obtained, user id:', data.user?.id)
+
   store.sesion = data.session
   await cargarUsuario(data.user.id)
+  console.log('5. cargarUsuario done, store.usuario:', store.usuario)
 
   const esAdmin = store.usuario?.rol === 'admin'
+  console.log('6. redirecting to:', esAdmin ? '#/admin' : '#/', 'usuario:', store.usuario)
   window.location.hash = esAdmin ? '#/admin' : '#/'
   showToast('Sesión iniciada correctamente', 'success')
   return { data }
