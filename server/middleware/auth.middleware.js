@@ -1,9 +1,17 @@
-const { expressJwtSecret } = require('jwks-rsa');
+const { createRemoteJWKSet, jwtVerify } = require('jose');
 
-const jwksUrl = process.env.SUPABASE_JWKS_URL ||
-  `${process.env.SUPABASE_URL}/auth/v1/.well-known/jwks.json`;
+let JWKS = null;
 
-function authMiddleware(req, res, next) {
+function getJWKS() {
+  if (!JWKS) {
+    const url = process.env.SUPABASE_JWKS_URL ||
+      `${process.env.SUPABASE_URL}/auth/v1/.well-known/jwks.json`;
+    JWKS = createRemoteJWKSet(new URL(url));
+  }
+  return JWKS;
+}
+
+async function authMiddleware(req, res, next) {
   const header = req.headers.authorization;
 
   if (!header || !header.startsWith('Bearer ')) {
@@ -12,42 +20,21 @@ function authMiddleware(req, res, next) {
 
   const token = header.split(' ')[1];
 
-  const getSigningKey = expressJwtSecret({
-    jwksUri: jwksUrl,
-    cache: true,
-    rateLimit: true,
-  });
+  try {
+    const { payload } = await jwtVerify(token, getJWKS());
 
-  const verifyJwt = () => {
-    return new Promise((resolve, reject) => {
-      getSigningKey({ kid: null }, (err, key) => {
-        if (err || !key) return reject(new Error('Error obteniendo clave de verificación'));
+    req.user = {
+      id: payload.sub,
+      email: payload.email,
+      rol: payload.app_metadata?.rol || payload.user_metadata?.rol || 'cliente',
+      metadata: payload.app_metadata || {},
+    };
 
-        const jwt = require('jsonwebtoken');
-        jwt.verify(token, key.getPublicKey(), { algorithms: ['RS256'] }, (err, decoded) => {
-          if (err) return reject(err);
-          resolve(decoded);
-        });
-      });
-    });
-  };
-
-  verifyJwt()
-    .then((payload) => {
-      req.user = {
-        id: payload.sub,
-        email: payload.email,
-        rol: payload.app_metadata?.rol || payload.user_metadata?.rol || 'cliente',
-        metadata: payload.app_metadata || {},
-      };
-      next();
-    })
-    .catch((err) => {
-      if (err.name === 'TokenExpiredError') {
-        return res.status(401).json({ error: 'Token expirado' });
-      }
-      return res.status(401).json({ error: 'Token inválido' });
-    });
+    next();
+  } catch (err) {
+    const message = err.code === 'ERR_JWT_EXPIRED' ? 'Token expirado' : 'Token inválido';
+    return res.status(401).json({ error: message });
+  }
 }
 
 module.exports = { authMiddleware };
