@@ -4,7 +4,7 @@ const express = require('express');
 const helmet = require('helmet');
 const cors = require('cors');
 const morgan = require('morgan');
-const { rateLimiter } = require('./middleware/rateLimiter.middleware');
+const { globalLimiter, authLimiter, apiLimiter } = require('./middleware/rateLimiter.middleware');
 const { errorHandler } = require('./middleware/errorHandler.middleware');
 const logger = require('./utils/logger');
 
@@ -46,7 +46,7 @@ app.use(cors({
 }));
 app.use(morgan('combined', { stream: { write: msg => logger.info(msg.trim()) } }));
 app.use(express.json({ limit: '10mb' }));
-app.use(rateLimiter);
+app.use(globalLimiter);
 
 app.use(express.static(path.join(__dirname, '..', 'client'), {
   setHeaders: (res, path) => {
@@ -69,8 +69,8 @@ app.get('/api/health', async (_req, res) => {
   });
 });
 
-app.use('/api/checkout', checkoutRoutes);
-app.use('/api/admin', adminRoutes);
+app.use('/api/checkout', authLimiter, checkoutRoutes);
+app.use('/api/admin', apiLimiter, adminRoutes);
 
 app.get('*', (_req, res) => {
   res.sendFile(path.join(__dirname, '..', 'client', 'index.html'));
