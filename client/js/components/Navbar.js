@@ -112,4 +112,9 @@ export function renderNavbar(cont) {
     container.innerHTML = navbarHTML()
     attachEvents()
   })
+
+  onStoreChange('usuario', () => {
+    container.innerHTML = navbarHTML()
+    attachEvents()
+  })
 }

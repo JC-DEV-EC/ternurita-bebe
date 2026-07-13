@@ -61,16 +61,15 @@ export async function register(nombre, email, password) {
   }
 
   if (data?.user) {
-    const { error: insertError } = await supabase.from('perfiles').insert({
+    const { error: upsertError } = await supabase.from('perfiles').upsert({
       id: data.user.id,
       nombre_completo: nombre,
-      email,
       rol: 'cliente',
-    })
+    }, { onConflict: 'id' })
 
-    if (insertError) {
+    if (upsertError) {
       showToast('Error al crear perfil', 'error')
-      return { error: insertError }
+      return { error: upsertError }
     }
 
     store.sesion = data.session

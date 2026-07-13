@@ -4,7 +4,7 @@ export async function signUp(email, password, nombre) {
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
-    options: { data: { nombre } },
+    options: { data: { nombre_completo: nombre } },
   })
   return { data, error }
 }
