@@ -1,3 +1,4 @@
+console.log('main.js loaded')
 import { initRouter } from './router.js'
 import { renderNavbar } from './components/Navbar.js'
 import { renderFooter } from './components/Footer.js'
