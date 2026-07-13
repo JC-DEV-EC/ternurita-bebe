@@ -15,7 +15,31 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const { supabase, isConfigured } = require('./config/supabase');
 
-app.use(helmet());
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: [
+        "'self'",
+        "'unsafe-inline'",
+        'https://cdn.tailwindcss.com',
+        'https://esm.sh',
+      ],
+      styleSrc: [
+        "'self'",
+        "'unsafe-inline'",
+        'https://cdn.tailwindcss.com',
+      ],
+      connectSrc: [
+        "'self'",
+        'https://fssandkzjzplyuluwrbq.supabase.co',
+        'https://*.supabase.co',
+      ],
+      imgSrc: ["'self'", 'data:', 'https://*.supabase.co'],
+      fontSrc: ["'self'", 'https://cdn.tailwindcss.com'],
+    },
+  },
+}));
 app.use(cors({
   origin: process.env.CORS_ORIGIN || 'http://localhost:8080',
   credentials: true,
