@@ -24,7 +24,13 @@ app.use(morgan('combined', { stream: { write: msg => logger.info(msg.trim()) } }
 app.use(express.json({ limit: '10mb' }));
 app.use(rateLimiter);
 
-app.use(express.static(path.join(__dirname, '..', 'client')));
+app.use(express.static(path.join(__dirname, '..', 'client'), {
+  setHeaders: (res, path) => {
+    if (process.env.NODE_ENV === 'development') {
+      res.set('Cache-Control', 'no-store, no-cache, must-revalidate');
+    }
+  },
+}));
 
 app.get('/api/health', async (_req, res) => {
   let dbStatus = false;
