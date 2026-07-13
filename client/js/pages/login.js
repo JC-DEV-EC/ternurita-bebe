@@ -40,7 +40,11 @@ export function afterRender() {
     submitBtn.disabled = true
     submitBtn.textContent = 'Entrando...'
 
-    await login(email, password)
+    try {
+      await login(email, password)
+    } catch (err) {
+      console.error('Login error:', err)
+    }
 
     submitBtn.disabled = false
     submitBtn.textContent = 'Entrar'

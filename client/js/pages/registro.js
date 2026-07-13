@@ -49,7 +49,11 @@ export function afterRender() {
     submitBtn.disabled = true
     submitBtn.textContent = 'Creando cuenta...'
 
-    await register(nombre, email, password)
+    try {
+      await register(nombre, email, password)
+    } catch (err) {
+      console.error('Register error:', err)
+    }
 
     submitBtn.disabled = false
     submitBtn.textContent = 'Crear cuenta'
