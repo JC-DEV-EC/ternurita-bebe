@@ -25,20 +25,26 @@ export default function render() {
 }
 
 export function afterRender() {
+  console.log('login afterRender called')
   const form = document.getElementById('login-form')
   const submitBtn = document.getElementById('login-submit')
 
+  console.log('form:', !!form, 'btn:', !!submitBtn)
+
   form?.addEventListener('submit', async (e) => {
     e.preventDefault()
+    console.log('form submit event')
     const email = document.getElementById('login-email').value.trim()
     const password = document.getElementById('login-password').value
+    console.log('email:', email, 'pw length:', password?.length)
 
     if (!email || !password) {
+      console.log('validation failed')
       return
     }
 
     submitBtn.disabled = true
-    submitBtn.textContent = 'Entrando...'
+    submitBtn.textContent = '1: login starting'
 
     try {
       await login(email, password)
