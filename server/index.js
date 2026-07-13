@@ -1,4 +1,5 @@
 require('dotenv').config();
+const path = require('path');
 const express = require('express');
 const helmet = require('helmet');
 const cors = require('cors');
@@ -23,6 +24,8 @@ app.use(morgan('combined', { stream: { write: msg => logger.info(msg.trim()) } }
 app.use(express.json({ limit: '10mb' }));
 app.use(rateLimiter);
 
+app.use(express.static(path.join(__dirname, '..', 'client')));
+
 app.get('/api/health', async (_req, res) => {
   let dbStatus = false;
   if (isConfigured) {
@@ -38,6 +41,10 @@ app.get('/api/health', async (_req, res) => {
 
 app.use('/api/checkout', checkoutRoutes);
 app.use('/api/admin', adminRoutes);
+
+app.get('*', (_req, res) => {
+  res.sendFile(path.join(__dirname, '..', 'client', 'index.html'));
+});
 
 app.use(errorHandler);
 
