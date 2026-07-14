@@ -1,34 +1,97 @@
-import { listar as listarCategorias } from '../services/categorias.service.js'
 import { destacados } from '../services/productos.service.js'
+import { listar as listarCategorias } from '../services/categorias.service.js'
 import { renderProductCard } from '../components/ProductCard.js'
+import { renderHero, initHeroParallax } from '../components/Hero.js'
+import { renderStickyScroll, initStickyScroll } from '../components/StickyScroll.js'
 import { showToast } from '../utils.js'
 import store from '../store.js'
 import { agregar } from '../services/carrito.service.js'
 
 export default function render() {
   return `
-    <div class="fade-in">
-      <section class="bg-gradient-to-r from-pink-100 to-sky-100 py-20">
-        <div class="max-w-7xl mx-auto px-4 text-center">
-          <h1 class="text-5xl font-bold text-gray-800 mb-4">Ternurita Bebé</h1>
-          <p class="text-xl text-gray-600 mb-8">Ropa y accesorios suaves como el amor de mamá</p>
-          <a href="#/productos" class="btn-primary text-lg px-8 py-3">Ver productos</a>
+    ${renderHero({
+      badge: 'Colección Primavera 2026',
+      title: 'Suavidad que abraza',
+      subtitle: 'Ropa y accesorios para bebés, hechos con amor y los mejores materiales.',
+      ctaText: 'Ver colección',
+      ctaLink: '#/productos',
+    })}
+
+    ${renderStickyScroll()}
+
+    <section class="section" id="gallery-section">
+      <div class="container">
+        <span class="badge">Galería</span>
+        <h2 class="headline-display" style="margin-bottom:var(--space-lg)">Explora nuestra colección</h2>
+        <div class="gallery-grid stagger-children" id="gallery-grid">
+          <div class="gallery-grid__item gallery-grid__item--wide">
+            <img src="https://placehold.co/800x400/F5E6E6/E8A0A0?text=Body+de+algodón" alt="Body de algodón" loading="lazy" />
+          </div>
+          <div class="gallery-grid__item">
+            <img src="https://placehold.co/400x400/E8F4F0/7EC8A0?text=Gorrito" alt="Gorrito" loading="lazy" />
+          </div>
+          <div class="gallery-grid__item">
+            <img src="https://placehold.co/400x400/FFF0E6/E8A080?text=Calcetines" alt="Calcetines" loading="lazy" />
+          </div>
+          <div class="gallery-grid__item">
+            <img src="https://placehold.co/400x400/F0E8FF/A080E8?text=Set+regalo" alt="Set de regalo" loading="lazy" />
+          </div>
+          <div class="gallery-grid__item">
+            <img src="https://placehold.co/400x400/FFF8E6/E8C880?text=Toalla" alt="Toalla" loading="lazy" />
+          </div>
         </div>
-      </section>
-      <section class="max-w-7xl mx-auto px-4 py-12">
-        <h2 class="text-2xl font-bold text-gray-800 mb-6">Categorías</h2>
-        <div id="categorias-container" class="grid grid-cols-2 md:grid-cols-4 gap-4"></div>
-      </section>
-      <section class="max-w-7xl mx-auto px-4 py-12">
-        <h2 class="text-2xl font-bold text-gray-800 mb-6">Productos destacados</h2>
-        <div id="destacados-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"></div>
-      </section>
-    </div>
+      </div>
+    </section>
+
+    <section class="section" id="features-section">
+      <div class="container">
+        <div class="features-grid stagger-children" id="features-grid">
+          <div>
+            <div class="features-grid__icon">🌿</div>
+            <h3 class="features-grid__title">Materiales naturales</h3>
+            <p class="features-grid__desc">Algodón orgánico certificado, libre de químicos y pesticidas.</p>
+          </div>
+          <div>
+            <div class="features-grid__icon">🤲</div>
+            <h3 class="features-grid__title">Hecho a mano</h3>
+            <p class="features-grid__desc">Cada prenda es elaborada por artesanos locales con dedicación.</p>
+          </div>
+          <div>
+            <div class="features-grid__icon">📦</div>
+            <h3 class="features-grid__title">Envío seguro</h3>
+            <p class="features-grid__desc">Empaquetado cuidadosamente para que llegue perfecto a tu hogar.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="destacados-section">
+      <div class="container">
+        <span class="badge">Destacados</span>
+        <h2 class="headline-display" style="margin-bottom:var(--space-lg)">Los más queridos</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6" id="destacados-container"></div>
+      </div>
+    </section>
+
+    <section class="cta-section" id="cta-section">
+      <h2 class="cta-section__title fade-up">Listo para consentir a tu bebé?</h2>
+      <p class="cta-section__desc fade-up">Descubre nuestra colección completa de ropa y accesorios.</p>
+      <div class="fade-up">
+        <a href="#/productos" class="btn btn--primary btn--large">Ir a la tienda</a>
+      </div>
+    </section>
   `
 }
 
 export async function afterRender() {
-  await Promise.all([cargarCategorias(), cargarDestacados()])
+  initHeroParallax()
+  initStickyScroll()
+  initFadeUpObserver()
+
+  await Promise.all([
+    cargarDestacados(),
+    cargarCategorias(),
+  ])
 
   const container = document.getElementById('destacados-container')
   container?.addEventListener('click', async (e) => {
@@ -43,7 +106,8 @@ export async function afterRender() {
     }
 
     btn.disabled = true
-    btn.textContent = 'Agregando...'
+    const originalText = btn.textContent
+    btn.textContent = '...'
 
     const { error } = await agregar(store.usuario.id, parseInt(productoId))
     if (error) {
@@ -57,33 +121,8 @@ export async function afterRender() {
     }
 
     btn.disabled = false
-    btn.textContent = 'Agregar al carrito'
+    btn.textContent = originalText
   })
-}
-
-async function cargarCategorias() {
-  const container = document.getElementById('categorias-container')
-  if (!container) return
-
-  const { data, error } = await listarCategorias()
-  if (error) {
-    container.innerHTML = '<p class="text-gray-400 col-span-full">Error al cargar categorías</p>'
-    return
-  }
-
-  if (!data || data.length === 0) {
-    container.innerHTML = '<p class="text-gray-400 col-span-full">No hay categorías disponibles</p>'
-    return
-  }
-
-  container.innerHTML = data.map(cat => `
-    <a href="#/productos?categoria=${cat.slug}" class="bg-white rounded-xl shadow-md p-6 text-center hover:shadow-lg transition-shadow group">
-      <div class="w-16 h-16 mx-auto mb-3 rounded-full bg-pink-100 flex items-center justify-center group-hover:bg-pink-200 transition-colors">
-        <span class="text-2xl">${cat.icono || '📁'}</span>
-      </div>
-      <h3 class="font-semibold text-gray-800">${cat.nombre}</h3>
-    </a>
-  `).join('')
 }
 
 async function cargarDestacados() {
@@ -92,14 +131,43 @@ async function cargarDestacados() {
 
   const { data, error } = await destacados(8)
   if (error) {
-    container.innerHTML = '<p class="text-gray-400 col-span-full">Error al cargar productos</p>'
+    container.innerHTML = '<p class="text-secondary" style="grid-column:1/-1;text-align:center">Error al cargar productos</p>'
     return
   }
 
   if (!data || data.length === 0) {
-    container.innerHTML = '<p class="text-gray-400 col-span-full">No hay productos destacados</p>'
+    container.innerHTML = '<p class="text-secondary" style="grid-column:1/-1;text-align:center">No hay productos destacados aún</p>'
     return
   }
 
   container.innerHTML = data.map(p => renderProductCard(p)).join('')
+
+  await new Promise(r => setTimeout(r, 50))
+  initFadeUpObserver()
+}
+
+async function cargarCategorias() {
+  const { data } = await listarCategorias()
+  return data
+}
+
+function initFadeUpObserver() {
+  if (typeof IntersectionObserver === 'undefined') {
+    document.querySelectorAll('.fade-up, .stagger-children').forEach(el => el.classList.add('is-visible'))
+    return
+  }
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('is-visible')
+        observer.unobserve(entry.target)
+      }
+    })
+  }, {
+    threshold: 0.1,
+    rootMargin: '0px 0px -40px 0px',
+  })
+
+  document.querySelectorAll('.fade-up, .stagger-children').forEach(el => observer.observe(el))
 }
