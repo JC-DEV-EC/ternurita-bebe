@@ -1,24 +1,17 @@
 import { obtenerPorSlug } from '../services/productos.service.js'
-import { formatPrecio, showToast } from '../utils.js'
+import { showToast } from '../utils.js'
 import store from '../store.js'
 import { agregar } from '../services/carrito.service.js'
 
 export default function render(params) {
   return `
-    <div class="max-w-7xl mx-auto px-4 py-8 fade-in">
-      <a href="#/productos" class="text-pink-500 hover:text-pink-600 mb-4 inline-block">&larr; Todos los productos</a>
-      <div class="bg-white rounded-xl shadow-md overflow-hidden">
-        <div class="md:flex">
-          <div class="md:w-1/2">
-            <div id="imagen-container" class="bg-gray-100 h-80 md:h-full flex items-center justify-center">
-              <div class="spinner"></div>
-            </div>
-          </div>
-          <div class="md:w-1/2 p-8">
-            <div id="info-container">
-              <div class="spinner"></div>
-            </div>
-          </div>
+    <div style="padding-top:var(--nav-height)">
+      <div class="product-detail" id="product-detail">
+        <div class="product-detail__gallery" id="gallery-container">
+          <div class="spinner" style="margin:auto"></div>
+        </div>
+        <div class="product-detail__info" id="info-container">
+          <div class="spinner"></div>
         </div>
       </div>
     </div>
@@ -31,39 +24,43 @@ export async function afterRender(params) {
 
   const { data, error } = await obtenerPorSlug(slug)
   if (error || !data) {
-    document.getElementById('info-container').innerHTML = '<p class="text-gray-400">Producto no encontrado</p>'
+    document.getElementById('info-container').innerHTML = '<p style="color:var(--text-secondary);padding:2rem">Producto no encontrado</p>'
     return
   }
 
-  renderImagen(data)
+  renderGallery(data)
   renderInfo(data)
-  configurarAgregar(data)
+  setupActions(data)
 }
 
-function renderImagen(producto) {
-  const container = document.getElementById('imagen-container')
+function renderGallery(producto) {
+  const container = document.getElementById('gallery-container')
   if (!container) return
 
   const imagenes = producto.imagenes || []
-  const url = imagenes[0]?.url || 'https://placehold.co/600x600/f3f4f6/9ca3af?text=Sin+imagen'
+  const mainUrl = imagenes[0]?.url || 'https://placehold.co/600x800/F5F5F7/D2D2D7?text=Sin+imagen'
 
-  container.innerHTML = `
-    <div class="w-full h-full">
-      <img src="${url}" alt="${producto.nombre}" class="w-full h-full object-cover">
-    </div>
-  `
+  let html = `<div class="product-detail__main-img"><img src="${mainUrl}" alt="${producto.nombre}" id="main-image" /></div>`
 
   if (imagenes.length > 1) {
-    const thumbnails = document.createElement('div')
-    thumbnails.className = 'flex gap-2 p-4'
-    thumbnails.innerHTML = imagenes.map(img => `
-      <button class="w-16 h-16 rounded-lg overflow-hidden border-2 border-transparent hover:border-pink-500 transition-colors">
-        <img src="${img.url}" class="w-full h-full object-cover">
-      </button>
-    `).join('')
-
-    container.parentElement.appendChild(thumbnails)
+    html += `<div class="product-detail__thumbs">`
+    imagenes.forEach((img, i) => {
+      html += `<button class="product-detail__thumb ${i === 0 ? 'is-active' : ''}" data-src="${img.url}">
+        <img src="${img.url}" alt="" />
+      </button>`
+    })
+    html += `</div>`
   }
+
+  container.innerHTML = html
+
+  container.querySelectorAll('.product-detail__thumb').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.getElementById('main-image').src = btn.dataset.src
+      container.querySelectorAll('.product-detail__thumb').forEach(t => t.classList.remove('is-active'))
+      btn.classList.add('is-active')
+    })
+  })
 }
 
 function renderInfo(producto) {
@@ -73,75 +70,87 @@ function renderInfo(producto) {
   const tieneOferta = producto.precio_oferta && producto.precio_oferta < producto.precio
 
   container.innerHTML = `
-    <h1 class="text-3xl font-bold text-gray-800 mb-2">${producto.nombre}</h1>
-    ${producto.categorias ? `<p class="text-sm text-pink-500 font-medium mb-4">${producto.categorias.nombre}</p>` : ''}
-    <div class="flex items-baseline gap-3 mb-4">
+    <div class="product-detail__breadcrumb">
+      <a href="#/productos">Productos</a>
+      ${producto.categorias ? `<span class="product-detail__sep">/</span><a href="#/productos?categoria=${producto.categorias.slug}">${producto.categorias.nombre}</a>` : ''}
+    </div>
+
+    <h1 class="product-detail__title">${producto.nombre}</h1>
+
+    <div class="product-detail__price-row">
       ${tieneOferta
-        ? `<span class="text-3xl font-bold text-pink-500">${formatPrecio(producto.precio_oferta)}</span>
-           <span class="text-lg text-gray-400 line-through">${formatPrecio(producto.precio)}</span>`
-        : `<span class="text-3xl font-bold text-gray-800">${formatPrecio(producto.precio)}</span>`
+        ? `<span class="product-detail__price">$${producto.precio_oferta.toFixed(2)}</span>
+           <span class="product-detail__price--old">$${producto.precio.toFixed(2)}</span>`
+        : `<span class="product-detail__price">$${producto.precio.toFixed(2)}</span>`
       }
     </div>
-    ${producto.descripcion ? `<p class="text-gray-600 mb-6 leading-relaxed">${producto.descripcion}</p>` : ''}
-    <div class="flex items-center gap-3 mb-6">
-      <label class="text-sm font-medium text-gray-700">Cantidad:</label>
-      <div class="flex items-center border border-gray-200 rounded-lg">
-        <button id="btn-decrementar" class="px-3 py-2 text-gray-600 hover:text-pink-500 transition-colors">-</button>
-        <span id="cantidad-selector" class="px-4 py-2 font-medium text-gray-800 min-w-[3rem] text-center">1</span>
-        <button id="btn-incrementar" class="px-3 py-2 text-gray-600 hover:text-pink-500 transition-colors">+</button>
+
+    ${producto.descripcion ? `<p class="product-detail__desc">${producto.descripcion}</p>` : ''}
+
+    <div class="product-detail__divider"></div>
+
+    <div class="product-detail__qty">
+      <span class="product-detail__qty-label">Cantidad</span>
+      <div class="product-detail__qty-controls">
+        <button id="btn-dec" class="product-detail__qty-btn">−</button>
+        <span id="qty-display" class="product-detail__qty-value">1</span>
+        <button id="btn-inc" class="product-detail__qty-btn">+</button>
       </div>
-      <span class="text-sm text-gray-400">Stock: ${producto.stock_total || 0}</span>
     </div>
-    <button id="btn-agregar-carrito" class="btn-primary w-full text-lg py-3" ${producto.stock_total < 1 ? 'disabled' : ''}>
+
+    <button id="btn-add-cart" class="btn btn--primary btn--large" style="width:100%;margin-top:var(--space-lg)" ${producto.stock_total < 1 ? 'disabled' : ''}>
       ${producto.stock_total < 1 ? 'Agotado' : 'Agregar al carrito'}
     </button>
+
+    <div class="product-detail__meta">
+      <span>Stock: ${producto.stock_total || 0} unidades</span>
+    </div>
   `
 }
 
-function configurarAgregar(producto) {
+function setupActions(producto) {
   let cantidad = 1
-
-  const btnAgregar = document.getElementById('btn-agregar-carrito')
-  const btnDec = document.getElementById('btn-decrementar')
-  const btnInc = document.getElementById('btn-incrementar')
-  const spanCantidad = document.getElementById('cantidad-selector')
+  const btnAdd = document.getElementById('btn-add-cart')
+  const btnDec = document.getElementById('btn-dec')
+  const btnInc = document.getElementById('btn-inc')
+  const qtyDisplay = document.getElementById('qty-display')
 
   btnDec?.addEventListener('click', () => {
     if (cantidad > 1) {
       cantidad--
-      spanCantidad.textContent = cantidad
+      qtyDisplay.textContent = cantidad
     }
   })
 
   btnInc?.addEventListener('click', () => {
     if (cantidad < (producto.stock_total || 99)) {
       cantidad++
-      spanCantidad.textContent = cantidad
+      qtyDisplay.textContent = cantidad
     }
   })
 
-  btnAgregar?.addEventListener('click', async () => {
+  btnAdd?.addEventListener('click', async () => {
     if (!store.sesion) {
       showToast('Debes iniciar sesión', 'warning')
       window.location.hash = '#/login'
       return
     }
 
-    btnAgregar.disabled = true
-    btnAgregar.textContent = 'Agregando...'
+    btnAdd.disabled = true
+    btnAdd.textContent = 'Agregando...'
 
     const { error } = await agregar(store.usuario.id, producto.id, cantidad)
     if (error) {
       showToast('Error al agregar al carrito', 'error')
     } else {
-      showToast(`${cantidad} x ${producto.nombre} agregado al carrito`, 'success')
+      showToast(`${cantidad} x ${producto.nombre} agregado`, 'success')
       const { obtener } = await import('../services/carrito.service.js')
       const { data } = await obtener(store.usuario.id)
       store.carrito = data || []
       store.carritoCount = (data || []).reduce((sum, item) => sum + item.cantidad, 0)
     }
 
-    btnAgregar.disabled = false
-    btnAgregar.textContent = 'Agregar al carrito'
+    btnAdd.disabled = false
+    btnAdd.textContent = 'Agregar al carrito'
   })
 }
