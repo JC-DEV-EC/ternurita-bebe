@@ -1,20 +1,25 @@
 import store from '../store.js'
 import { misPedidos } from '../services/pedidos.service.js'
-import { formatPrecio, formatDate } from '../utils.js'
+import { formatDate } from '../utils.js'
 
-const badges = {
-  pendiente: 'badge badge-warning',
-  enviado: 'badge badge-primary',
-  entregado: 'badge badge-success',
-  cancelado: 'badge badge-error',
+const statusClass = {
+  pendiente: 'status-badge--pendiente',
+  enviado: 'status-badge--enviado',
+  entregado: 'status-badge--entregado',
+  cancelado: 'status-badge--cancelado',
 }
 
 export default function render() {
   return `
-    <div class="max-w-4xl mx-auto px-4 py-8 fade-in">
-      <h1 class="text-3xl font-bold text-gray-800 mb-6">Mis pedidos</h1>
-      <div id="pedidos-lista">
-        <div class="text-center py-8"><div class="spinner mx-auto"></div></div>
+    <div style="padding-top:calc(var(--nav-height) + var(--space-lg))">
+      <div class="container" style="max-width:720px">
+        <div style="margin-bottom:var(--space-xl)">
+          <span class="badge">Pedidos</span>
+          <h1 class="headline-display">Mis pedidos</h1>
+        </div>
+        <div id="pedidos-lista">
+          <div style="text-align:center;padding:var(--space-2xl) 0"><div class="spinner" style="margin:0 auto"></div></div>
+        </div>
       </div>
     </div>
   `
@@ -35,33 +40,34 @@ async function cargarPedidos() {
   const { data, error } = await misPedidos(store.usuario.id)
 
   if (error) {
-    container.innerHTML = '<p class="text-center text-gray-400 py-8">Error al cargar pedidos</p>'
+    container.innerHTML = '<p style="text-align:center;color:var(--text-secondary);padding:var(--space-2xl) 0">Error al cargar pedidos</p>'
     return
   }
 
   if (!data || data.length === 0) {
     container.innerHTML = `
-      <div class="text-center py-12">
-        <p class="text-gray-400 text-lg mb-4">No tienes pedidos aún</p>
-        <a href="#/productos" class="btn-primary">Ir a comprar</a>
+      <div style="text-align:center;padding:var(--space-3xl) 0">
+        <p style="font-size:var(--text-title);font-weight:var(--weight-semibold);margin-bottom:var(--space-sm)">No tienes pedidos aún</p>
+        <p style="color:var(--text-secondary);margin-bottom:var(--space-lg)">Explora nuestra colección y haz tu primer pedido.</p>
+        <a href="#/productos" class="btn btn--primary">Ir a comprar</a>
       </div>
     `
     return
   }
 
   container.innerHTML = `
-    <div class="space-y-4">
+    <div style="display:flex;flex-direction:column;gap:var(--space-sm)">
       ${data.map(pedido => `
-        <a href="#/pedidos/${pedido.id}" class="block bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition-shadow">
-          <div class="flex items-center justify-between mb-3">
-            <span class="font-bold text-gray-800">Pedido #${pedido.id}</span>
-            <span class="${badges[pedido.estado] || 'badge'}">${pedido.estado}</span>
+        <a href="#/pedidos/${pedido.id}" class="pedido-card">
+          <div class="pedido-card__header">
+            <span class="pedido-card__id">Pedido #${pedido.id}</span>
+            <span class="status-badge ${statusClass[pedido.estado] || ''}">${pedido.estado}</span>
           </div>
-          <div class="flex items-center justify-between text-sm">
-            <span class="text-gray-500">${formatDate(pedido.created_at)}</span>
-            <span class="font-bold text-gray-800">${formatPrecio(pedido.total_pedido)}</span>
+          <div class="pedido-card__info">
+            <span>${formatDate(pedido.created_at)}</span>
+            <span style="font-weight:var(--weight-semibold)">$${parseFloat(pedido.total_pedido).toFixed(2)}</span>
           </div>
-          <div class="mt-2 text-xs text-gray-400">
+          <div class="pedido-card__meta">
             ${pedido.detalles_pedido?.length || 0} producto(s)
           </div>
         </a>

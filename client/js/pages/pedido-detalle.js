@@ -1,21 +1,26 @@
 import store from '../store.js'
 import { detallePedido } from '../services/pedidos.service.js'
-import { formatPrecio, formatDate, showToast } from '../utils.js'
+import { formatDate } from '../utils.js'
 
-const badges = {
-  pendiente: 'badge badge-warning',
-  enviado: 'badge badge-primary',
-  entregado: 'badge badge-success',
-  cancelado: 'badge badge-error',
+const statusClass = {
+  pendiente: 'status-badge--pendiente',
+  enviado: 'status-badge--enviado',
+  entregado: 'status-badge--entregado',
+  cancelado: 'status-badge--cancelado',
 }
 
 export default function render(params) {
   return `
-    <div class="max-w-3xl mx-auto px-4 py-8 fade-in">
-      <a href="#/pedidos" class="text-pink-500 hover:text-pink-600 mb-4 inline-block">&larr; Mis pedidos</a>
-      <h1 class="text-3xl font-bold text-gray-800 mb-6">Pedido #${params?.id || ''}</h1>
-      <div id="pedido-detalle-contenido">
-        <div class="text-center py-8"><div class="spinner mx-auto"></div></div>
+    <div style="padding-top:calc(var(--nav-height) + var(--space-lg))">
+      <div class="container" style="max-width:720px">
+        <a href="#/pedidos" style="display:inline-flex;align-items:center;gap:var(--space-xs);font-size:var(--text-caption);color:var(--text-secondary);margin-bottom:var(--space-lg);transition:color var(--duration-fast) var(--ease-smooth)">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10 3L5 8l5 5"/></svg>
+          Mis pedidos
+        </a>
+        <h1 class="headline-display" style="margin-bottom:var(--space-xl)">Pedido #${params?.id || ''}</h1>
+        <div id="pedido-detalle-contenido">
+          <div style="text-align:center;padding:var(--space-2xl) 0"><div class="spinner" style="margin:0 auto"></div></div>
+        </div>
       </div>
     </div>
   `
@@ -29,13 +34,13 @@ export async function afterRender(params) {
 
   const id = parseInt(params?.id)
   if (!id) {
-    document.getElementById('pedido-detalle-contenido').innerHTML = '<p class="text-center text-gray-400">Pedido no válido</p>'
+    document.getElementById('pedido-detalle-contenido').innerHTML = '<p style="text-align:center;color:var(--text-secondary);padding:var(--space-2xl) 0">Pedido no válido</p>'
     return
   }
 
   const { data, error } = await detallePedido(id, store.usuario.id)
   if (error || !data) {
-    document.getElementById('pedido-detalle-contenido').innerHTML = '<p class="text-center text-gray-400 py-8">Pedido no encontrado</p>'
+    document.getElementById('pedido-detalle-contenido').innerHTML = '<p style="text-align:center;color:var(--text-secondary);padding:var(--space-2xl) 0">Pedido no encontrado</p>'
     return
   }
 
@@ -49,50 +54,53 @@ function renderDetalle(pedido) {
   const direccion = pedido.direccion_envio || {}
 
   container.innerHTML = `
-    <div class="space-y-6">
-      <div class="bg-white rounded-xl shadow-md p-6">
-        <div class="flex items-center justify-between mb-4">
+    <div style="display:flex;flex-direction:column;gap:var(--space-md)">
+      <div class="pedido-section">
+        <div style="display:flex;justify-content:space-between;align-items:center">
           <div>
-            <p class="text-sm text-gray-500">Fecha</p>
-            <p class="font-semibold">${formatDate(pedido.created_at)}</p>
+            <p style="font-size:var(--text-caption);color:var(--text-secondary);margin-bottom:2px">Fecha</p>
+            <p style="font-weight:var(--weight-medium)">${formatDate(pedido.created_at)}</p>
           </div>
-          <span class="${badges[pedido.estado] || 'badge'} text-sm">${pedido.estado}</span>
+          <span class="status-badge ${statusClass[pedido.estado] || ''}">${pedido.estado}</span>
         </div>
       </div>
 
-      <div class="bg-white rounded-xl shadow-md p-6">
-        <h2 class="text-lg font-bold text-gray-800 mb-4">Productos</h2>
-        <div class="space-y-3">
-          ${(pedido.detalles_pedido || []).map(det => {
-            const producto = det.productos || {}
-            return `
-              <div class="flex items-center justify-between">
-                <div>
-                  <p class="font-semibold text-gray-800">${producto.nombre || 'Producto'}</p>
-                  <p class="text-sm text-gray-500">x${det.cantidad} a ${formatPrecio(det.precio_unitario)}</p>
-                </div>
-                <p class="font-bold text-gray-800">${formatPrecio(det.precio_unitario * det.cantidad)}</p>
+      <div class="pedido-section">
+        <h2 class="pedido-section__title">Productos</h2>
+        ${(pedido.detalles_pedido || []).map(det => {
+          const producto = det.productos || {}
+          return `
+            <div class="pedido-detail-row">
+              <div>
+                <p style="font-weight:var(--weight-medium)">${producto.nombre || 'Producto'}</p>
+                <p style="font-size:var(--text-caption);color:var(--text-secondary)">×${det.cantidad} a $${parseFloat(det.precio_unitario).toFixed(2)}</p>
               </div>
-            `
-          }).join('')}
-        </div>
-        <div class="border-t mt-4 pt-4 flex justify-between text-lg font-bold">
+              <p style="font-weight:var(--weight-semibold)">$${(parseFloat(det.precio_unitario) * det.cantidad).toFixed(2)}</p>
+            </div>
+          `
+        }).join('')}
+        <div class="pedido-total-row">
           <span>Total</span>
-          <span class="text-pink-500">${formatPrecio(pedido.total_pedido)}</span>
+          <span>$${parseFloat(pedido.total_pedido).toFixed(2)}</span>
         </div>
       </div>
 
-      <div class="bg-white rounded-xl shadow-md p-6">
-        <h2 class="text-lg font-bold text-gray-800 mb-4">Dirección de envío</h2>
-        <p class="text-gray-600">${direccion.calle || ''}</p>
-        <p class="text-gray-600">${direccion.ciudad || ''}</p>
-        <p class="text-gray-600">${direccion.telefono || ''}</p>
+      <div class="pedido-section">
+        <h2 class="pedido-section__title">Dirección de envío</h2>
+        <p style="color:var(--text-secondary);line-height:1.6">
+          ${[
+            direccion.nombre || direccion.calle,
+            direccion.direccion,
+            direccion.ciudad,
+            direccion.telefono,
+          ].filter(Boolean).join('<br>')}
+        </p>
       </div>
 
       ${pedido.notas ? `
-        <div class="bg-white rounded-xl shadow-md p-6">
-          <h2 class="text-lg font-bold text-gray-800 mb-2">Notas</h2>
-          <p class="text-gray-600">${pedido.notas}</p>
+        <div class="pedido-section">
+          <h2 class="pedido-section__title">Notas</h2>
+          <p style="color:var(--text-secondary)">${pedido.notas}</p>
         </div>
       ` : ''}
     </div>

@@ -4,36 +4,48 @@ import { crearPedido } from '../services/pedidos.service.js'
 
 export default function render() {
   return `
-    <div class="max-w-3xl mx-auto px-4 py-8 fade-in">
-      <h1 class="text-3xl font-bold text-gray-800 mb-6">Checkout</h1>
-      <div id="checkout-resumen" class="mb-6"></div>
-      <div class="bg-white rounded-xl shadow-md p-6">
-        <form id="checkout-form">
-          <h2 class="text-lg font-bold text-gray-800 mb-4">Dirección de envío</h2>
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">Nombre completo</label>
-              <input type="text" id="checkout-nombre" class="input-field" placeholder="Tu nombre" value="${store.usuario?.nombre_completo || ''}" required>
+    <div class="checkout-page">
+      <div class="container">
+        <div style="margin-bottom:var(--space-xl)">
+          <span class="badge">Checkout</span>
+          <h1 class="headline-display">Finalizar compra</h1>
+        </div>
+        <div id="checkout-resumen" style="margin-bottom:var(--space-lg)"></div>
+        <div class="checkout-layout">
+          <form class="checkout-form" id="checkout-form">
+            <h2 class="checkout-form__title">Dirección de envío</h2>
+            <div class="checkout-form__grid">
+              <div class="checkout-form__full">
+                <label class="checkout-form__label">Nombre completo</label>
+                <input type="text" id="checkout-nombre" class="input" placeholder="Tu nombre" value="${store.usuario?.nombre_completo || ''}" required>
+              </div>
+              <div class="checkout-form__full">
+                <label class="checkout-form__label">Teléfono</label>
+                <input type="tel" id="checkout-telefono" class="input" placeholder="Teléfono" value="${store.usuario?.telefono || ''}" required>
+              </div>
+              <div class="checkout-form__full">
+                <label class="checkout-form__label">Dirección</label>
+                <input type="text" id="checkout-direccion" class="input" placeholder="Calle y número" value="${store.usuario?.direccion || ''}" required>
+              </div>
+              <div class="checkout-form__full">
+                <label class="checkout-form__label">Ciudad</label>
+                <input type="text" id="checkout-ciudad" class="input" placeholder="Ciudad" required>
+              </div>
+              <div class="checkout-form__full">
+                <label class="checkout-form__label">Notas (opcional)</label>
+                <textarea id="checkout-notas" class="input" rows="2" placeholder="Instrucciones especiales..." style="resize:none"></textarea>
+              </div>
             </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">Teléfono</label>
-              <input type="tel" id="checkout-telefono" class="input-field" placeholder="Teléfono" value="${store.usuario?.telefono || ''}" required>
-            </div>
-            <div class="md:col-span-2">
-              <label class="block text-sm font-medium text-gray-700 mb-1">Dirección</label>
-              <input type="text" id="checkout-direccion" class="input-field" placeholder="Calle y número" value="${store.usuario?.direccion || ''}" required>
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">Ciudad</label>
-              <input type="text" id="checkout-ciudad" class="input-field" placeholder="Ciudad" required>
-            </div>
-            <div class="md:col-span-2">
-              <label class="block text-sm font-medium text-gray-700 mb-1">Notas (opcional)</label>
-              <textarea id="checkout-notas" class="input-field" rows="2" placeholder="Instrucciones especiales..."></textarea>
-            </div>
+            <button type="submit" class="btn btn--primary btn--large" style="width:100%;margin-top:var(--space-lg)" id="btn-confirmar-pedido">
+              Confirmar pedido
+            </button>
+          </form>
+
+          <div class="cart-summary" id="checkout-summary-sidebar">
+            <h2 class="cart-summary__title">Resumen</h2>
+            <div id="checkout-summary-items"></div>
           </div>
-          <button type="submit" class="btn-primary w-full mt-6" id="btn-confirmar-pedido">Confirmar pedido</button>
-        </form>
+        </div>
       </div>
     </div>
   `
@@ -53,15 +65,19 @@ export async function afterRender() {
   }
 
   if (store.carrito.length === 0) {
-    document.getElementById('checkout-resumen').innerHTML = `
-      <div class="bg-yellow-50 border border-yellow-200 rounded-xl p-4 text-yellow-800 text-sm">
-        Tu carrito está vacío. <a href="#/productos" class="font-medium underline">Ver productos</a>
-      </div>
-    `
+    const resumen = document.getElementById('checkout-resumen')
+    if (resumen) {
+      resumen.innerHTML = `
+        <div style="background:var(--bg-secondary);border-radius:18px;padding:var(--space-lg);text-align:center">
+          <p style="color:var(--text-secondary);margin-bottom:var(--space-md)">Tu carrito está vacío.</p>
+          <a href="#/productos" class="btn btn--primary">Ver productos</a>
+        </div>
+      `
+    }
     return
   }
 
-  renderResumen()
+  renderSummary()
 
   const form = document.getElementById('checkout-form')
   form?.addEventListener('submit', async (e) => {
@@ -101,32 +117,27 @@ export async function afterRender() {
   })
 }
 
-function renderResumen() {
-  const container = document.getElementById('checkout-resumen')
-  if (!container) return
-
+function renderSummary() {
   const items = store.carrito
   const subtotal = items.reduce((sum, item) => {
     const precio = item.productos?.precio_oferta || item.productos?.precio || 0
     return sum + precio * item.cantidad
   }, 0)
 
+  const container = document.getElementById('checkout-summary-items')
+  if (!container) return
+
   container.innerHTML = `
-    <div class="bg-white rounded-xl shadow-md p-6">
-      <h2 class="text-lg font-bold text-gray-800 mb-3">Resumen del pedido (${items.length} productos)</h2>
-      <div class="space-y-2 mb-4">
-        ${items.slice(0, 3).map(item => `
-          <div class="flex justify-between text-sm">
-            <span class="text-gray-600 truncate">${item.productos?.nombre || 'Producto'} x${item.cantidad}</span>
-            <span class="font-medium">$${((item.productos?.precio_oferta || item.productos?.precio || 0) * item.cantidad).toFixed(2)}</span>
-          </div>
-        `).join('')}
-        ${items.length > 3 ? `<p class="text-xs text-gray-400">y ${items.length - 3} más...</p>` : ''}
+    ${items.slice(0, 4).map(item => `
+      <div class="cart-summary__row">
+        <span>${item.productos?.nombre || 'Producto'} ×${item.cantidad}</span>
+        <span>$${((item.productos?.precio_oferta || item.productos?.precio || 0) * item.cantidad).toFixed(2)}</span>
       </div>
-      <div class="border-t pt-3 flex justify-between text-lg font-bold">
-        <span>Total</span>
-        <span class="text-pink-500">$${subtotal.toFixed(2)}</span>
-      </div>
+    `).join('')}
+    ${items.length > 4 ? `<div class="cart-summary__row"><span style="color:var(--text-tertiary)">y ${items.length - 4} más...</span></div>` : ''}
+    <div class="cart-summary__row cart-summary__row--total">
+      <span>Total</span>
+      <span>$${subtotal.toFixed(2)}</span>
     </div>
   `
 }
