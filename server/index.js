@@ -9,6 +9,8 @@ const { errorHandler } = require('./middleware/errorHandler.middleware');
 const logger = require('./utils/logger');
 
 const checkoutRoutes = require('./routes/checkout.routes');
+const authRoutes = require('./routes/auth.routes');
+const searchRoutes = require('./routes/search.routes');
 const adminRoutes = require('./routes/admin');
 
 const app = express();
@@ -70,6 +72,8 @@ app.get('/api/health', async (_req, res) => {
 });
 
 app.use('/api/checkout', authLimiter, checkoutRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/api/search', searchRoutes);
 app.use('/api/admin', apiLimiter, adminRoutes);
 
 app.get('*', (_req, res) => {
@@ -78,8 +82,10 @@ app.get('*', (_req, res) => {
 
 app.use(errorHandler);
 
-app.listen(PORT, () => {
-  logger.info(`Servidor corriendo en puerto ${PORT}`);
-});
+if (require.main === module) {
+  app.listen(PORT, () => {
+    logger.info(`Servidor corriendo en puerto ${PORT}`);
+  });
+}
 
 module.exports = app;
