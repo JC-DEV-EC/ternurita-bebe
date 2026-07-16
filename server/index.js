@@ -26,6 +26,7 @@ app.use(helmet({
         "'unsafe-inline'",
         'https://cdn.tailwindcss.com',
         'https://esm.sh',
+        'https://cdnjs.cloudflare.com',
       ],
       styleSrc: [
         "'self'",
@@ -37,7 +38,7 @@ app.use(helmet({
         'https://fssandkzjzplyuluwrbq.supabase.co',
         'https://*.supabase.co',
       ],
-      imgSrc: ["'self'", 'data:', 'https://*.supabase.co'],
+      imgSrc: ["'self'", 'data:', 'https://*.supabase.co', 'https://placehold.co', 'https://placehold.co:443'],
       fontSrc: ["'self'", 'https://cdn.tailwindcss.com'],
     },
   },
