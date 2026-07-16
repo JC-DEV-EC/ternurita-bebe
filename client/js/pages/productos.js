@@ -15,23 +15,34 @@ const estado = {
 
 export default function render() {
   return `
-    <div class="max-w-7xl mx-auto px-4 py-8 fade-in">
-      <h1 class="text-3xl font-bold text-gray-800 mb-6">Productos</h1>
-      <div class="flex flex-col md:flex-row gap-6">
-        <aside class="w-full md:w-64 shrink-0">
-          <div class="bg-white rounded-xl shadow-md p-4">
-            <h2 class="font-semibold text-gray-700 mb-3">Filtros</h2>
-            <div id="filtros-container">
-              <div class="mb-4">
-                <input type="text" id="input-busqueda" class="input-field" placeholder="Buscar productos..." value="${estado.busqueda}">
-              </div>
+    <div class="section" style="padding-top:calc(var(--nav-height) + var(--space-lg))">
+      <div class="container">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:var(--space-md);margin-bottom:var(--space-xl)">
+          <div>
+            <span class="badge">Tienda</span>
+            <h1 class="headline-display">Productos</h1>
+          </div>
+          <div style="position:relative;width:100%;max-width:320px">
+            <svg style="position:absolute;left:1rem;top:50%;transform:translateY(-50%);width:16px;height:16px;color:var(--text-tertiary);pointer-events:none" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+              <circle cx="7" cy="7" r="5.5"/>
+              <path d="M11.5 11.5L15 15"/>
+            </svg>
+            <input type="text" id="input-busqueda" class="input" style="padding-left:2.75rem" placeholder="Buscar productos..." value="${estado.busqueda}">
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:220px 1fr;gap:var(--space-xl)">
+          <aside style="position:sticky;top:calc(var(--nav-height) + var(--space-md));align-self:start">
+            <div style="background:var(--bg-secondary);border-radius:18px;padding:var(--space-lg)">
+              <h3 style="font-size:var(--text-caption);font-weight:var(--weight-semibold);text-transform:uppercase;letter-spacing:var(--tracking-wide);color:var(--text-tertiary);margin-bottom:var(--space-md)">Categorías</h3>
               <div id="categorias-filtro"></div>
             </div>
+          </aside>
+
+          <div>
+            <div id="productos-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:var(--space-md)"></div>
+            <div id="paginacion" style="margin-top:var(--space-xl)"></div>
           </div>
-        </aside>
-        <div class="flex-1">
-          <div id="productos-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
-          <div id="paginacion" class="mt-8"></div>
         </div>
       </div>
     </div>
@@ -43,6 +54,11 @@ export async function afterRender() {
   estado.categoria = params.get('categoria') || ''
   estado.busqueda = params.get('busqueda') || ''
   estado.pagina = parseInt(params.get('pagina')) || 1
+
+  if (estado.busqueda) {
+    const input = document.getElementById('input-busqueda')
+    if (input) input.value = estado.busqueda
+  }
 
   await cargarCategoriasFiltro()
 
@@ -70,7 +86,8 @@ export async function afterRender() {
     }
 
     btn.disabled = true
-    btn.textContent = 'Agregando...'
+    const originalText = btn.textContent
+    btn.textContent = '...'
 
     const { error } = await agregar(store.usuario.id, parseInt(productoId))
     if (error) {
@@ -84,7 +101,7 @@ export async function afterRender() {
     }
 
     btn.disabled = false
-    btn.textContent = 'Agregar al carrito'
+    btn.textContent = originalText
   })
 }
 
@@ -96,13 +113,28 @@ async function cargarCategoriasFiltro() {
   if (error || !data) return
 
   container.innerHTML = `
-    <button class="btn-filtro-cat block w-full text-left px-3 py-2 rounded-lg text-sm mb-1 transition-colors ${!estado.categoria ? 'bg-pink-100 text-pink-700 font-medium' : 'text-gray-600 hover:bg-gray-100'}" data-categoria="">Todas</button>
+    <button class="btn-filtro-cat" data-categoria=""
+      style="display:block;width:100%;text-align:left;padding:var(--space-xs) var(--space-sm);border-radius:8px;font-size:var(--text-caption);margin-bottom:2px;transition:all var(--duration-fast) var(--ease-smooth);${!estado.categoria ? 'background:var(--accent-light);color:var(--accent);font-weight:var(--weight-medium)' : 'color:var(--text-secondary);background:transparent'}">
+      Todas
+    </button>
     ${data.map(cat => `
-      <button class="btn-filtro-cat block w-full text-left px-3 py-2 rounded-lg text-sm mb-1 transition-colors ${estado.categoria === cat.slug ? 'bg-pink-100 text-pink-700 font-medium' : 'text-gray-600 hover:bg-gray-100'}" data-categoria="${cat.slug}">${cat.nombre}</button>
+      <button class="btn-filtro-cat" data-categoria="${cat.slug}"
+        style="display:block;width:100%;text-align:left;padding:var(--space-xs) var(--space-sm);border-radius:8px;font-size:var(--text-caption);margin-bottom:2px;transition:all var(--duration-fast) var(--ease-smooth);${estado.categoria === cat.slug ? 'background:var(--accent-light);color:var(--accent);font-weight:var(--weight-medium)' : 'color:var(--text-secondary);background:transparent'}">
+        ${cat.nombre}
+      </button>
     `).join('')}
   `
 
   container.querySelectorAll('.btn-filtro-cat').forEach(btn => {
+    btn.addEventListener('mouseenter', () => {
+      if (!btn.dataset.categoria !== estado.categoria) {
+        btn.style.background = 'var(--overlay)'
+      }
+    })
+    btn.addEventListener('mouseleave', () => {
+      const isActive = btn.dataset.categoria === estado.categoria
+      btn.style.background = isActive ? 'var(--accent-light)' : 'transparent'
+    })
     btn.addEventListener('click', () => {
       estado.categoria = btn.dataset.categoria
       estado.pagina = 1
@@ -117,7 +149,7 @@ async function cargarProductos() {
   const pagContainer = document.getElementById('paginacion')
   if (!grid) return
 
-  grid.innerHTML = '<div class="col-span-full text-center py-8"><div class="spinner mx-auto"></div></div>'
+  grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:var(--space-2xl) 0"><div class="spinner" style="margin:0 auto"></div></div>'
 
   const { data, error, count, paginas } = await listarProductos({
     categoria: estado.categoria || undefined,
@@ -127,12 +159,12 @@ async function cargarProductos() {
   })
 
   if (error) {
-    grid.innerHTML = '<p class="col-span-full text-center text-gray-400 py-8">Error al cargar productos</p>'
+    grid.innerHTML = '<p style="grid-column:1/-1;text-align:center;color:var(--text-secondary);padding:var(--space-2xl) 0">Error al cargar productos</p>'
     return
   }
 
   if (!data || data.length === 0) {
-    grid.innerHTML = '<p class="col-span-full text-center text-gray-400 py-8">No se encontraron productos</p>'
+    grid.innerHTML = '<p style="grid-column:1/-1;text-align:center;color:var(--text-secondary);padding:var(--space-2xl) 0">No se encontraron productos</p>'
     return
   }
 
@@ -144,6 +176,7 @@ async function cargarProductos() {
       paginas,
       onChange: (nuevaPagina) => {
         estado.pagina = nuevaPagina
+        window.scrollTo({ top: 0, behavior: 'smooth' })
         cargarProductos()
       },
     })

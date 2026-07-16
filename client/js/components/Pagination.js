@@ -10,8 +10,25 @@ export function renderPagination(container, { pagina, paginas, onChange }) {
     botones.push({ label: '&laquo;', value: pagina - 1, active: false })
   }
 
-  for (let i = 1; i <= paginas; i++) {
+  const maxVisibles = 7
+  let inicio = Math.max(1, pagina - Math.floor(maxVisibles / 2))
+  let fin = Math.min(paginas, inicio + maxVisibles - 1)
+  if (fin - inicio + 1 < maxVisibles) {
+    inicio = Math.max(1, fin - maxVisibles + 1)
+  }
+
+  if (inicio > 1) {
+    botones.push({ label: '1', value: 1, active: false })
+    if (inicio > 2) botones.push({ label: '...', value: null, active: false, disabled: true })
+  }
+
+  for (let i = inicio; i <= fin; i++) {
     botones.push({ label: i, value: i, active: i === pagina })
+  }
+
+  if (fin < paginas) {
+    if (fin < paginas - 1) botones.push({ label: '...', value: null, active: false, disabled: true })
+    botones.push({ label: paginas, value: paginas, active: false })
   }
 
   if (pagina < paginas) {
@@ -19,21 +36,18 @@ export function renderPagination(container, { pagina, paginas, onChange }) {
   }
 
   container.innerHTML = `
-    <div class="flex items-center justify-center gap-2">
+    <div class="pagination">
       ${botones.map(b => `
-        <button class="btn-page px-3 py-1.5 rounded-lg text-sm font-medium transition-colors
-          ${b.active
-            ? 'bg-pink-500 text-white'
-            : 'bg-white text-gray-600 hover:bg-pink-50 border border-gray-200'
-          }"
-          data-page="${b.value}">
+        <button class="pagination__btn ${b.active ? 'pagination__btn--active' : ''}"
+                data-page="${b.value}"
+                ${b.disabled ? 'disabled' : ''}>
           ${b.label}
         </button>
       `).join('')}
     </div>
   `
 
-  container.querySelectorAll('.btn-page').forEach(btn => {
+  container.querySelectorAll('.pagination__btn:not([disabled])').forEach(btn => {
     btn.addEventListener('click', () => {
       onChange(parseInt(btn.dataset.page))
     })
