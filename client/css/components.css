@@ -597,10 +597,15 @@
 
   .sticky-scroll__panel {
     height: auto;
-    min-height: 70vh;
+    min-height: auto;
     padding: var(--space-2xl) var(--space-md);
     opacity: 1;
     transform: none;
+    border-bottom: 1px solid var(--border-subtle, rgba(0,0,0,0.06));
+  }
+
+  .sticky-scroll__panel:last-child {
+    border-bottom: none;
   }
 }
 
