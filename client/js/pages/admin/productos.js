@@ -1,37 +1,38 @@
 import { renderAdminSidebar } from '../../components/AdminSidebar.js'
-import { openModal, cerrarModal, setModalContent } from '../../components/Modal.js'
+import { openModal, cerrarModal } from '../../components/Modal.js'
 import { productos } from '../../services/admin.service.js'
 import { listar as listarCategorias } from '../../services/categorias.service.js'
-import { formatPrecio, showToast } from '../../utils.js'
+import { showToast } from '../../utils.js'
 
 export default function render() {
   return `
-    <div class="max-w-7xl mx-auto px-4 py-8 fade-in">
-      <h1 class="text-3xl font-bold text-gray-800 mb-6">Productos</h1>
-      <div class="flex flex-col md:flex-row gap-6">
-        <div id="admin-sidebar"></div>
-        <div class="flex-1">
-          <div class="flex items-center justify-between mb-4">
-            <p class="text-gray-500" id="productos-count">Cargando...</p>
-            <button id="btn-crear-producto" class="btn-primary text-sm">+ Nuevo producto</button>
+    <div class="admin-layout">
+      <div id="admin-sidebar"></div>
+      <div class="admin-main">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:var(--space-md);margin-bottom:var(--space-xl)">
+          <div>
+            <span class="badge">Admin</span>
+            <h1 class="headline-display">Productos</h1>
           </div>
-          <div class="bg-white rounded-xl shadow-md overflow-hidden">
-            <div class="overflow-x-auto">
-              <table class="w-full">
-                <thead class="bg-gray-50">
-                  <tr>
-                    <th class="text-left px-4 py-3 text-sm font-medium text-gray-500">Nombre</th>
-                    <th class="text-left px-4 py-3 text-sm font-medium text-gray-500">Precio</th>
-                    <th class="text-left px-4 py-3 text-sm font-medium text-gray-500">Stock</th>
-                    <th class="text-left px-4 py-3 text-sm font-medium text-gray-500">Categoría</th>
-                    <th class="text-right px-4 py-3 text-sm font-medium text-gray-500">Acciones</th>
-                  </tr>
-                </thead>
-                <tbody id="productos-table-body">
-                  <tr><td colspan="5" class="text-center py-8 text-gray-400">Cargando...</td></tr>
-                </tbody>
-              </table>
-            </div>
+          <button id="btn-crear-producto" class="btn btn--primary">+ Nuevo producto</button>
+        </div>
+        <p style="font-size:var(--text-caption);color:var(--text-secondary);margin-bottom:var(--space-md)" id="productos-count">Cargando...</p>
+        <div id="productos-table-wrap" style="background:var(--bg-primary);border:1px solid var(--border-light);border-radius:18px;overflow:hidden">
+          <div style="overflow-x:auto">
+            <table style="width:100%;border-collapse:collapse" id="productos-table">
+              <thead>
+                <tr style="border-bottom:1px solid var(--border-light)">
+                  <th style="text-align:left;padding:var(--space-sm) var(--space-md);font-size:var(--text-small);font-weight:var(--weight-semibold);text-transform:uppercase;letter-spacing:var(--tracking-wide);color:var(--text-tertiary)">Nombre</th>
+                  <th style="text-align:left;padding:var(--space-sm) var(--space-md);font-size:var(--text-small);font-weight:var(--weight-semibold);text-transform:uppercase;letter-spacing:var(--tracking-wide);color:var(--text-tertiary)">Precio</th>
+                  <th style="text-align:left;padding:var(--space-sm) var(--space-md);font-size:var(--text-small);font-weight:var(--weight-semibold);text-transform:uppercase;letter-spacing:var(--tracking-wide);color:var(--text-tertiary)">Stock</th>
+                  <th style="text-align:left;padding:var(--space-sm) var(--space-md);font-size:var(--text-small);font-weight:var(--weight-semibold);text-transform:uppercase;letter-spacing:var(--tracking-wide);color:var(--text-tertiary)">Categoría</th>
+                  <th style="text-align:right;padding:var(--space-sm) var(--space-md);font-size:var(--text-small);font-weight:var(--weight-semibold);text-transform:uppercase;letter-spacing:var(--tracking-wide);color:var(--text-tertiary)">Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="productos-table-body">
+                <tr><td colspan="5" style="text-align:center;padding:var(--space-2xl) 0;color:var(--text-tertiary)">Cargando...</td></tr>
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
@@ -60,42 +61,46 @@ async function cargarProductos() {
     if (count) count.textContent = `${data.length} producto(s)`
 
     if (!data || data.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="5" class="text-center py-8 text-gray-400">No hay productos</td></tr>'
+      tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:var(--space-2xl) 0;color:var(--text-tertiary)">No hay productos</td></tr>'
       return
     }
 
     tbody.innerHTML = data.map(p => `
-      <tr class="border-t border-gray-100 hover:bg-gray-50">
-        <td class="px-4 py-3">
-          <span class="font-medium text-gray-800">${p.nombre}</span>
+      <tr style="border-bottom:1px solid var(--border-light);transition:background var(--duration-fast) var(--ease-smooth)">
+        <td style="padding:var(--space-sm) var(--space-md)">
+          <span style="font-weight:var(--weight-medium)">${p.nombre}</span>
         </td>
-        <td class="px-4 py-3">
-          <span class="font-semibold">${formatPrecio(p.precio_oferta || p.precio)}</span>
-          ${p.precio_oferta ? `<span class="text-xs text-gray-400 line-through ml-1">${formatPrecio(p.precio)}</span>` : ''}
+        <td style="padding:var(--space-sm) var(--space-md)">
+          <span style="font-weight:var(--weight-semibold)">$${(p.precio_oferta || p.precio).toFixed(2)}</span>
+          ${p.precio_oferta ? `<span style="font-size:var(--text-small);color:var(--text-tertiary);text-decoration:line-through;margin-left:4px">$${p.precio.toFixed(2)}</span>` : ''}
         </td>
-        <td class="px-4 py-3">
-          <span class="${p.stock_total > 0 ? 'text-gray-800' : 'text-red-500 font-medium'}">${p.stock_total || 0}</span>
+        <td style="padding:var(--space-sm) var(--space-md)">
+          <span style="${p.stock_total > 0 ? '' : 'color:#DC2626;font-weight:var(--weight-medium)'}">${p.stock_total || 0}</span>
         </td>
-        <td class="px-4 py-3 text-gray-600">${p.categoria_id || '-'}</td>
-        <td class="px-4 py-3 text-right">
-          <button class="btn-editar text-pink-500 hover:text-pink-600 text-sm font-medium mr-3" data-id="${p.id}">Editar</button>
-          <button class="btn-eliminar text-red-500 hover:text-red-600 text-sm font-medium" data-id="${p.id}">Eliminar</button>
+        <td style="padding:var(--space-sm) var(--space-md);color:var(--text-secondary)">${p.categoria_id || '-'}</td>
+        <td style="padding:var(--space-sm) var(--space-md);text-align:right">
+          <button class="btn-editar" style="font-size:var(--text-caption);color:var(--accent);margin-right:var(--space-md);transition:color var(--duration-fast) var(--ease-smooth)" data-id="${p.id}">Editar</button>
+          <button class="btn-eliminar" style="font-size:var(--text-caption);color:#DC2626;transition:color var(--duration-fast) var(--ease-smooth)" data-id="${p.id}">Eliminar</button>
         </td>
       </tr>
     `).join('')
 
     tbody.querySelectorAll('.btn-editar').forEach(btn => {
+      btn.addEventListener('mouseenter', () => { btn.style.opacity = '0.7' })
+      btn.addEventListener('mouseleave', () => { btn.style.opacity = '1' })
       btn.addEventListener('click', async () => {
         const id = parseInt(btn.dataset.id)
         try {
-          const data = await productos.listar()
-          const producto = data.find(p => p.id === id)
-          if (producto) abrirModalProducto(producto)
-        } catch { /* ignore */ }
+          const all = await productos.listar()
+          const prod = all.find(p => p.id === id)
+          if (prod) abrirModalProducto(prod)
+        } catch {}
       })
     })
 
     tbody.querySelectorAll('.btn-eliminar').forEach(btn => {
+      btn.addEventListener('mouseenter', () => { btn.style.opacity = '0.7' })
+      btn.addEventListener('mouseleave', () => { btn.style.opacity = '1' })
       btn.addEventListener('click', async () => {
         if (!confirm('¿Eliminar este producto?')) return
         try {
@@ -108,7 +113,7 @@ async function cargarProductos() {
       })
     })
   } catch (err) {
-    tbody.innerHTML = `<tr><td colspan="5" class="text-center py-8 text-red-400">Error: ${err.message}</td></tr>`
+    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:var(--space-2xl) 0;color:#DC2626">Error: ${err.message}</td></tr>`
   }
 }
 
@@ -118,58 +123,58 @@ async function abrirModalProducto(producto) {
 
   const html = `
     <form id="form-producto">
-      <div class="mb-3">
-        <label class="block text-sm font-medium text-gray-700 mb-1">Nombre</label>
-        <input type="text" id="fp-nombre" class="input-field" value="${producto?.nombre || ''}" required>
+      <div style="margin-bottom:var(--space-md)">
+        <label style="display:block;font-size:var(--text-caption);font-weight:var(--weight-medium);color:var(--text-secondary);margin-bottom:var(--space-xs)">Nombre</label>
+        <input type="text" id="fp-nombre" class="input" value="${producto?.nombre || ''}" required>
       </div>
-      <div class="grid grid-cols-2 gap-3 mb-3">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-md);margin-bottom:var(--space-md)">
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Precio</label>
-          <input type="number" step="0.01" id="fp-precio" class="input-field" value="${producto?.precio || ''}" required>
+          <label style="display:block;font-size:var(--text-caption);font-weight:var(--weight-medium);color:var(--text-secondary);margin-bottom:var(--space-xs)">Precio</label>
+          <input type="number" step="0.01" id="fp-precio" class="input" value="${producto?.precio || ''}" required>
         </div>
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Precio oferta</label>
-          <input type="number" step="0.01" id="fp-precio-oferta" class="input-field" value="${producto?.precio_oferta || ''}">
+          <label style="display:block;font-size:var(--text-caption);font-weight:var(--weight-medium);color:var(--text-secondary);margin-bottom:var(--space-xs)">Precio oferta</label>
+          <input type="number" step="0.01" id="fp-precio-oferta" class="input" value="${producto?.precio_oferta || ''}">
         </div>
       </div>
-      <div class="grid grid-cols-2 gap-3 mb-3">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-md);margin-bottom:var(--space-md)">
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Stock</label>
-          <input type="number" id="fp-stock" class="input-field" value="${producto?.stock_total || 0}" required>
+          <label style="display:block;font-size:var(--text-caption);font-weight:var(--weight-medium);color:var(--text-secondary);margin-bottom:var(--space-xs)">Stock</label>
+          <input type="number" id="fp-stock" class="input" value="${producto?.stock_total || 0}" required>
         </div>
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">SKU</label>
-          <input type="text" id="fp-sku" class="input-field" value="${producto?.sku || ''}">
+          <label style="display:block;font-size:var(--text-caption);font-weight:var(--weight-medium);color:var(--text-secondary);margin-bottom:var(--space-xs)">SKU</label>
+          <input type="text" id="fp-sku" class="input" value="${producto?.sku || ''}">
         </div>
       </div>
-      <div class="mb-3">
-        <label class="block text-sm font-medium text-gray-700 mb-1">Slug</label>
-        <input type="text" id="fp-slug" class="input-field" value="${producto?.slug || ''}" required>
+      <div style="margin-bottom:var(--space-md)">
+        <label style="display:block;font-size:var(--text-caption);font-weight:var(--weight-medium);color:var(--text-secondary);margin-bottom:var(--space-xs)">Slug</label>
+        <input type="text" id="fp-slug" class="input" value="${producto?.slug || ''}" required>
       </div>
-      <div class="mb-3">
-        <label class="block text-sm font-medium text-gray-700 mb-1">Categoría</label>
-        <select id="fp-categoria" class="input-field">
+      <div style="margin-bottom:var(--space-md)">
+        <label style="display:block;font-size:var(--text-caption);font-weight:var(--weight-medium);color:var(--text-secondary);margin-bottom:var(--space-xs)">Categoría</label>
+        <select id="fp-categoria" class="input">
           <option value="">Sin categoría</option>
           ${(categorias || []).map(c => `
             <option value="${c.id}" ${producto?.categoria_id === c.id ? 'selected' : ''}>${c.nombre}</option>
           `).join('')}
         </select>
       </div>
-      <div class="mb-3">
-        <label class="block text-sm font-medium text-gray-700 mb-1">Descripción</label>
-        <textarea id="fp-descripcion" class="input-field" rows="3">${producto?.descripcion || ''}</textarea>
+      <div style="margin-bottom:var(--space-md)">
+        <label style="display:block;font-size:var(--text-caption);font-weight:var(--weight-medium);color:var(--text-secondary);margin-bottom:var(--space-xs)">Descripción</label>
+        <textarea id="fp-descripcion" class="input" rows="3" style="resize:none">${producto?.descripcion || ''}</textarea>
       </div>
-      <div class="flex items-center gap-2 mb-4">
-        <input type="checkbox" id="fp-destacado" class="rounded" ${producto?.destacado ? 'checked' : ''}>
-        <label for="fp-destacado" class="text-sm text-gray-700">Producto destacado</label>
+      <div style="display:flex;align-items:center;gap:var(--space-sm);margin-bottom:var(--space-lg)">
+        <input type="checkbox" id="fp-destacado" ${producto?.destacado ? 'checked' : ''} style="width:16px;height:16px;accent-color:var(--accent)">
+        <label for="fp-destacado" style="font-size:var(--text-caption);color:var(--text-secondary)">Producto destacado</label>
       </div>
       ${esEdicion ? `
-        <div class="mb-4">
-          <label class="block text-sm font-medium text-gray-700 mb-1">Imagen</label>
-          <input type="file" id="fp-imagen" class="input-field" accept="image/*">
+        <div style="margin-bottom:var(--space-md)">
+          <label style="display:block;font-size:var(--text-caption);font-weight:var(--weight-medium);color:var(--text-secondary);margin-bottom:var(--space-xs)">Imagen</label>
+          <input type="file" id="fp-imagen" class="input" accept="image/*" style="padding-top:0.5rem;padding-bottom:0.5rem">
         </div>
       ` : ''}
-      <button type="submit" class="btn-primary w-full">${esEdicion ? 'Guardar cambios' : 'Crear producto'}</button>
+      <button type="submit" class="btn btn--primary" style="width:100%">${esEdicion ? 'Guardar cambios' : 'Crear producto'}</button>
     </form>
   `
 
