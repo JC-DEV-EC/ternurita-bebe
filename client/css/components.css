@@ -665,6 +665,10 @@
   .gallery-grid__item--wide {
     grid-column: 1;
   }
+
+  .gallery-grid__item img {
+    object-position: right center;
+  }
 }
 
 /* ─── Features Grid ─── */
