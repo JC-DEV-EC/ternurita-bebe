@@ -1,5 +1,11 @@
 import { placeholderImg } from '../utils.js'
 
+const stickScrollImages = [
+  'assets/images/img-stikScroll/img1.png',
+  'assets/images/img-stikScroll/img2.png',
+  'assets/images/img-stikScroll/img3.png',
+]
+
 export function renderStickyScroll(panels) {
   const defaultPanels = [
     {
@@ -43,11 +49,21 @@ export function renderStickyScroll(panels) {
   `
 }
 
+function cambiarImagen(index) {
+  const img = document.getElementById('sticky-img')
+  if (!img) return
+  const src = stickScrollImages[index]
+  if (src) img.src = src
+}
+
 export function initStickyScroll() {
+  const img = document.getElementById('sticky-img')
+
   if (typeof window.gsap === 'undefined' || typeof window.ScrollTrigger === 'undefined') {
-    document.querySelectorAll('.sticky-scroll__panel').forEach(el => {
+    document.querySelectorAll('.sticky-scroll__panel').forEach((el, i) => {
       el.classList.add('is-visible')
     })
+    if (img) img.src = stickScrollImages[0] || img.src
     return
   }
 
@@ -71,6 +87,7 @@ export function initStickyScroll() {
               p.classList.remove('is-visible', 'is-exiting')
             })
             panel.classList.add('is-visible')
+            cambiarImagen(i)
             if (i > 0) panels[i - 1].classList.add('is-exiting')
           },
           onLeave: () => {
@@ -82,10 +99,12 @@ export function initStickyScroll() {
               p.classList.remove('is-visible', 'is-exiting')
             })
             panel.classList.add('is-visible')
+            cambiarImagen(i)
           },
           onLeaveBack: () => {
             if (i > 0) {
               panels[i - 1].classList.add('is-visible')
+              cambiarImagen(i - 1)
             }
             panel.classList.remove('is-visible')
           },
@@ -93,7 +112,10 @@ export function initStickyScroll() {
       })
     },
     '(max-width: 768px)': () => {
-      panels.forEach(p => p.classList.add('is-visible'))
+      panels.forEach((p, i) => {
+        p.classList.add('is-visible')
+        if (i === 0 && img) img.src = stickScrollImages[0] || img.src
+      })
     },
   })
 }
