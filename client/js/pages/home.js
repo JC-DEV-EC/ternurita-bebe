@@ -137,7 +137,7 @@ async function cargarDestacados() {
 
 
 const galeriaItems = [
-  { nombre: 'Bodies de algodón', slug: 'bodies-algodon', wide: true, bg: '#F5E6E6', fg: '#E8A0A0' },
+  { nombre: 'Bodies de algodón', slug: 'bodies-algodon', wide: true, bg: '#F5E6E6', fg: '#E8A0A0', imagen: 'Assets/images/img-categoria-exterior.png'},
   { nombre: 'Gorritos', slug: 'gorritos', wide: false, bg: '#E8F4F0', fg: '#7EC8A0' },
   { nombre: 'Calcetines y medias', slug: 'calcetines', wide: false, bg: '#FFF0E6', fg: '#E8A080' },
   { nombre: 'Sets de regalo', slug: 'sets-regalo', wide: false, bg: '#F0E8FF', fg: '#A080E8' },
@@ -152,7 +152,7 @@ function cargarGaleria() {
     const wide = item.wide ? 'gallery-grid__item--wide' : ''
     return `
       <a href="#/productos?categoria=${item.slug}" class="gallery-grid__item ${wide}">
-        <img src="${placeholderImg(wide ? 800 : 400, wide ? 400 : 400, item.nombre, item.bg, item.fg)}" alt="${item.nombre}" loading="lazy" />
+        <img src="${item.imagen || placeholderImg(wide ? 800 : 400, wide ? 400 : 400, item.nombre, item.bg, item.fg)}" alt="${item.nombre}" loading="lazy" />
       </a>
     `
   }).join('')
