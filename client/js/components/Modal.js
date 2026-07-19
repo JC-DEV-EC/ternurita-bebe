@@ -8,7 +8,9 @@ export function openModal(titulo, contenidoHTML) {
       <div class="modal__header">
         <h2 class="modal__title">${titulo}</h2>
         <button class="modal__close btn-cerrar-modal">
-          <i data-lucide="x" style="width:16px;height:16px"></i>
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <path d="M4 4l8 8M12 4l-8 8"/>
+          </svg>
         </button>
       </div>
       <div id="modal-body">${contenidoHTML}</div>
@@ -16,7 +18,6 @@ export function openModal(titulo, contenidoHTML) {
   `
 
   document.body.appendChild(overlay)
-  if (window.lucide) window.lucide.createIcons()
 
   overlay.querySelector('.btn-cerrar-modal')?.addEventListener('click', cerrarModal)
   overlay.addEventListener('click', (e) => {
@@ -32,5 +33,4 @@ export function cerrarModal() {
 export function setModalContent(html) {
   const body = document.getElementById('modal-body')
   if (body) body.innerHTML = html
-  if (window.lucide) window.lucide.createIcons()
 }

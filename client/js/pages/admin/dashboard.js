@@ -1,6 +1,5 @@
 import { renderAdminSidebar } from '../../components/AdminSidebar.js'
 import { productos, pedidos } from '../../services/admin.service.js'
-import { initIcons } from '../../utils.js'
 
 export default function render() {
   return `
@@ -37,7 +36,6 @@ export default function render() {
 export async function afterRender() {
   const sidebar = document.getElementById('admin-sidebar')
   if (sidebar) renderAdminSidebar(sidebar)
-  initIcons()
 
   await Promise.all([
     cargarStatsProductos(),

@@ -1,5 +1,5 @@
 import store from './store.js'
-import { getParamsFromPath, initIcons } from './utils.js'
+import { getParamsFromPath } from './utils.js'
 
 const pages = {
   home:       () => import('./pages/home.js'),
@@ -101,7 +101,6 @@ export function initRouter() {
     if (mod.afterRender) {
       mod.afterRender(matched.params)
     }
-    initIcons()
   }
 
   window.addEventListener('hashchange', resolve)

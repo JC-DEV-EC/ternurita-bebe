@@ -1,6 +1,6 @@
 import { renderAdminSidebar } from '../../components/AdminSidebar.js'
 import { usuarios } from '../../services/admin.service.js'
-import { formatDate, showToast, initIcons } from '../../utils.js'
+import { formatDate, showToast } from '../../utils.js'
 
 export default function render() {
   return `
@@ -37,7 +37,6 @@ export default function render() {
 export async function afterRender() {
   const sidebar = document.getElementById('admin-sidebar')
   if (sidebar) renderAdminSidebar(sidebar)
-  initIcons()
 
   await cargarUsuarios()
 }

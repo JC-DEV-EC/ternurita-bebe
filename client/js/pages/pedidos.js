@@ -1,6 +1,6 @@
 import store from '../store.js'
 import { misPedidos } from '../services/pedidos.service.js'
-import { formatDate, initIcons } from '../utils.js'
+import { formatDate } from '../utils.js'
 
 const statusClass = {
   pendiente: 'status-badge--pendiente',
@@ -63,7 +63,7 @@ async function cargarPedidos() {
         return `
         <a href="#/pedidos/${pedido.id}" class="pedido-card" style="display:flex;align-items:center;gap:var(--space-md)">
           <div style="width:56px;height:56px;border-radius:10px;overflow:hidden;background:var(--bg-secondary);flex-shrink:0">
-            ${imgUrl ? `<img src="${imgUrl}" alt="" style="width:100%;height:100%;object-fit:contain;padding:4px" />` : `<i data-lucide="package" style="width:20px;height:20px;color:var(--text-tertiary)"></i>`}
+            ${imgUrl ? `<img src="${imgUrl}" alt="" style="width:100%;height:100%;object-fit:contain;padding:4px" />` : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:1.2rem;color:var(--text-tertiary)">📦</div>`}
           </div>
           <div style="flex:1;min-width:0">
             <div class="pedido-card__header" style="margin-bottom:4px">
@@ -80,5 +80,4 @@ async function cargarPedidos() {
       `}).join('')}
     </div>
   `
-  initIcons()
 }
