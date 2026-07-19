@@ -46,10 +46,8 @@ export function placeholderImg(w, h, text, bg, fg) {
 }
 
 export function initIcons() {
-  if (typeof window.lucide !== 'undefined' && typeof window.lucide.createIcons === 'function') {
+  if (window.lucide) {
     window.lucide.createIcons()
-  } else {
-    setTimeout(initIcons, 100)
   }
 }
 
