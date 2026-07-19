@@ -1,13 +1,7 @@
-import { placeholderImg } from '../utils.js'
-
-export function renderHero({ title, subtitle, badge, ctaText, ctaLink, imageUrl, imageAlt }) {
+export function renderHero({ title, subtitle, badge, ctaText, ctaLink }) {
   return `
     <section class="hero" id="hero">
-      <div class="hero__bg">
-        <img src="${imageUrl || placeholderImg(1400, 900, 'Ternurita Bebé')}"
-             alt="${imageAlt || ''}"
-             id="hero-img" />
-      </div>
+      <div class="hero__bg" id="hero-bg"></div>
       <div class="hero__overlay"></div>
       <div class="hero__content">
         ${badge ? `<span class="hero__badge">${badge}</span>` : ''}
@@ -22,12 +16,11 @@ export function renderHero({ title, subtitle, badge, ctaText, ctaLink, imageUrl,
 }
 
 export function initHeroParallax() {
-  const img = document.getElementById('hero-img')
-  if (!img) return
+  const bg = document.getElementById('hero-bg')
+  if (!bg) return
 
   window.addEventListener('scroll', () => {
     const scrolled = window.scrollY
-    const parallax = scrolled * 0.15
-    img.style.transform = `translateY(${parallax}px) scale(1.05)`
+    bg.style.transform = `translateY(${scrolled * 0.15}px) scale(1.05)`
   }, { passive: true })
 }
