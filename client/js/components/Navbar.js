@@ -11,7 +11,7 @@ export function renderNavbar(container) {
   container.innerHTML = `
     <nav class="navbar" id="navbar-main">
       <div class="navbar__inner">
-        <a href="#/" class="navbar__logo">Ternurita Bebé</a>
+        <a href="#" class="navbar__logo">Ternurita Bebé</a>
         <div class="navbar__links" id="navbar-links">
           <a href="#/" class="navbar__link" data-route="/">Inicio</a>
           <a href="#/productos" class="navbar__link" data-route="/productos">Productos</a>

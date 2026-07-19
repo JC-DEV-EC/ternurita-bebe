@@ -1,12 +1,10 @@
 import { destacados } from '../services/productos.service.js'
-import { listar as listarCategorias } from '../services/categorias.service.js'
 import { renderProductCard } from '../components/ProductCard.js'
 import { renderHero, initHeroParallax } from '../components/Hero.js'
 import { renderStickyScroll, initStickyScroll } from '../components/StickyScroll.js'
 import { showToast, initFadeAnimations, placeholderImg } from '../utils.js'
 import store from '../store.js'
 import { agregar } from '../services/carrito.service.js'
-import supabase from '../services/supabase.service.js'
 
 export default function render() {
   return `
@@ -79,9 +77,10 @@ export async function afterRender() {
 
   await Promise.all([
     cargarDestacados(),
-    cargarCategorias(),
     cargarGaleria(),
   ])
+
+  initScroll()
 
   const container = document.getElementById('destacados-container')
   container?.addEventListener('click', async (e) => {
@@ -136,37 +135,29 @@ async function cargarDestacados() {
   initFadeUpObserver()
 }
 
-async function cargarGaleria() {
+
+const galeriaItems = [
+  { nombre: 'Bodies de algodón', slug: 'bodies-algodon', wide: true, bg: '#F5E6E6', fg: '#E8A0A0' },
+  { nombre: 'Gorritos', slug: 'gorritos', wide: false, bg: '#E8F4F0', fg: '#7EC8A0' },
+  { nombre: 'Calcetines y medias', slug: 'calcetines', wide: false, bg: '#FFF0E6', fg: '#E8A080' },
+  { nombre: 'Sets de regalo', slug: 'sets-regalo', wide: false, bg: '#F0E8FF', fg: '#A080E8' },
+  { nombre: 'Toallas y accesorios', slug: 'toallas', wide: false, bg: '#FFF8E6', fg: '#E8C880' },
+]
+
+function cargarGaleria() {
   const grid = document.getElementById('gallery-grid')
   if (!grid) return
 
-  const { data } = await supabase
-    .from('productos')
-    .select('id, nombre, slug, imagenes(*)')
-    .eq('activo', true)
-    .is('deleted_at', null)
-    .not('imagenes.url', 'is', null)
-    .order('created_at', { ascending: false })
-    .limit(5)
-
-  if (!data || data.length === 0) {
-    grid.innerHTML = '<p style="grid-column:1/-1;text-align:center;color:var(--text-secondary)">Próximamente más productos</p>'
-    return
-  }
-
-  grid.innerHTML = data.map((p, i) => {
-    const img = p.imagenes?.[0]?.url || placeholderImg(400, 400, p.nombre)
-    const wide = i === 0 ? 'gallery-grid__item--wide' : ''
+  grid.innerHTML = galeriaItems.map((item, i) => {
+    const wide = item.wide ? 'gallery-grid__item--wide' : ''
     return `
-      <a href="#/productos/${p.slug || p.id}" class="gallery-grid__item ${wide}">
-        <img src="${img}" alt="${p.nombre}" loading="lazy" />
+      <a href="#/productos?categoria=${item.slug}" class="gallery-grid__item ${wide}">
+        <img src="${placeholderImg(wide ? 800 : 400, wide ? 400 : 400, item.nombre, item.bg, item.fg)}" alt="${item.nombre}" loading="lazy" />
       </a>
     `
   }).join('')
 
-  await new Promise(r => setTimeout(r, 50))
-  initFadeUpObserver()
-  initScroll()
+  setTimeout(() => { initFadeAnimations() }, 50)
 }
 
 function initScroll() {
