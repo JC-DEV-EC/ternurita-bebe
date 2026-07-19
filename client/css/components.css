@@ -849,7 +849,9 @@
 }
 
 .admin-sidebar__link {
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
   padding: var(--space-sm) var(--space-lg);
   font-size: var(--text-caption);
   color: var(--text-secondary);
@@ -860,6 +862,12 @@
 .admin-sidebar__link:hover {
   background: var(--overlay);
   color: var(--text-primary);
+}
+
+.admin-sidebar__icon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
 }
 
 .admin-sidebar__link--active {
@@ -907,6 +915,32 @@
     grid-column: 1;
     padding: var(--space-md);
   }
+}
+
+/* ─── Stat Card ─── */
+.stat-card {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-light);
+  border-radius: 18px;
+  padding: var(--space-lg);
+  transition: box-shadow var(--duration-base) var(--ease-smooth);
+}
+
+.stat-card:hover {
+  box-shadow: var(--shadow-md);
+}
+
+.stat-card__label {
+  font-size: var(--text-caption);
+  color: var(--text-secondary);
+  margin-bottom: var(--space-xs);
+}
+
+.stat-card__value {
+  font-size: var(--text-display);
+  font-weight: var(--weight-bold);
+  letter-spacing: var(--tracking-tight);
+  color: var(--text-primary);
 }
 
 /* ─── Carrito ─── */

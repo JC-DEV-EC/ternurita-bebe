@@ -9,22 +9,16 @@ export function renderAdminSidebar(container) {
   const hashActual = window.location.hash
 
   container.innerHTML = `
-    <aside class="bg-white rounded-xl shadow-md p-4 shrink-0 w-full md:w-56">
-      <nav class="space-y-1">
-        ${links.map(link => `
-          <a href="${link.href}"
-             class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors
-             ${hashActual === link.href
-               ? 'bg-pink-100 text-pink-700'
-               : 'text-gray-600 hover:bg-gray-100'
-             }">
-            <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${link.icon}"/>
-            </svg>
-            ${link.label}
-          </a>
-        `).join('')}
-      </nav>
-    </aside>
+    <nav class="admin-sidebar">
+      ${links.map(link => `
+        <a href="${link.href}"
+           class="admin-sidebar__link ${hashActual === link.href ? 'admin-sidebar__link--active' : ''}">
+          <svg class="admin-sidebar__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="${link.icon}"/>
+          </svg>
+          ${link.label}
+        </a>
+      `).join('')}
+    </nav>
   `
 }

@@ -1,15 +1,15 @@
 export function openModal(titulo, contenidoHTML) {
   const overlay = document.createElement('div')
-  overlay.className = 'modal-overlay'
+  overlay.className = 'modal-backdrop'
   overlay.id = 'modal-overlay'
 
   overlay.innerHTML = `
-    <div class="modal-content p-6">
-      <div class="flex items-center justify-between mb-4">
-        <h2 class="text-xl font-bold text-gray-800">${titulo}</h2>
-        <button class="btn-cerrar-modal text-gray-400 hover:text-gray-600 transition-colors">
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+    <div class="modal">
+      <div class="modal__header">
+        <h2 class="modal__title">${titulo}</h2>
+        <button class="modal__close btn-cerrar-modal">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <path d="M4 4l8 8M12 4l-8 8"/>
           </svg>
         </button>
       </div>
