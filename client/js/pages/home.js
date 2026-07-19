@@ -6,6 +6,7 @@ import { renderStickyScroll, initStickyScroll } from '../components/StickyScroll
 import { showToast, initFadeAnimations, placeholderImg } from '../utils.js'
 import store from '../store.js'
 import { agregar } from '../services/carrito.service.js'
+import supabase from '../services/supabase.service.js'
 
 export default function render() {
   return `
@@ -23,23 +24,7 @@ export default function render() {
       <div class="container">
         <span class="badge">Galería</span>
         <h2 class="headline-display" style="margin-bottom:var(--space-lg)">Explora nuestra colección</h2>
-        <div class="gallery-grid stagger-children" id="gallery-grid">
-          <div class="gallery-grid__item gallery-grid__item--wide">
-            <img src="${placeholderImg(800, 400, 'Body de algodón', '#F5E6E6', '#E8A0A0')}" alt="Body de algodón" loading="lazy" />
-          </div>
-          <div class="gallery-grid__item">
-            <img src="${placeholderImg(400, 400, 'Gorrito', '#E8F4F0', '#7EC8A0')}" alt="Gorrito" loading="lazy" />
-          </div>
-          <div class="gallery-grid__item">
-            <img src="${placeholderImg(400, 400, 'Calcetines', '#FFF0E6', '#E8A080')}" alt="Calcetines" loading="lazy" />
-          </div>
-          <div class="gallery-grid__item">
-            <img src="${placeholderImg(400, 400, 'Set regalo', '#F0E8FF', '#A080E8')}" alt="Set de regalo" loading="lazy" />
-          </div>
-          <div class="gallery-grid__item">
-            <img src="${placeholderImg(400, 400, 'Toalla', '#FFF8E6', '#E8C880')}" alt="Toalla" loading="lazy" />
-          </div>
-        </div>
+        <div class="gallery-grid stagger-children" id="gallery-grid"></div>
       </div>
     </section>
 
@@ -69,7 +54,11 @@ export default function render() {
       <div class="container">
         <span class="badge">Destacados</span>
         <h2 class="headline-display" style="margin-bottom:var(--space-lg)">Los más queridos</h2>
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6" id="destacados-container"></div>
+        <div style="position:relative">
+          <button class="scroll-arrow scroll-arrow--left" id="scroll-left" aria-label="Anterior">‹</button>
+          <div class="destacados-scroll" id="destacados-container"></div>
+          <button class="scroll-arrow scroll-arrow--right" id="scroll-right" aria-label="Siguiente">›</button>
+        </div>
       </div>
     </section>
 
@@ -91,6 +80,7 @@ export async function afterRender() {
   await Promise.all([
     cargarDestacados(),
     cargarCategorias(),
+    cargarGaleria(),
   ])
 
   const container = document.getElementById('destacados-container')
@@ -144,6 +134,94 @@ async function cargarDestacados() {
 
   await new Promise(r => setTimeout(r, 50))
   initFadeUpObserver()
+}
+
+async function cargarGaleria() {
+  const grid = document.getElementById('gallery-grid')
+  if (!grid) return
+
+  const { data } = await supabase
+    .from('productos')
+    .select('id, nombre, slug, imagenes(*)')
+    .eq('activo', true)
+    .is('deleted_at', null)
+    .not('imagenes.url', 'is', null)
+    .order('created_at', { ascending: false })
+    .limit(5)
+
+  if (!data || data.length === 0) {
+    grid.innerHTML = '<p style="grid-column:1/-1;text-align:center;color:var(--text-secondary)">Próximamente más productos</p>'
+    return
+  }
+
+  grid.innerHTML = data.map((p, i) => {
+    const img = p.imagenes?.[0]?.url || placeholderImg(400, 400, p.nombre)
+    const wide = i === 0 ? 'gallery-grid__item--wide' : ''
+    return `
+      <a href="#/productos/${p.slug || p.id}" class="gallery-grid__item ${wide}">
+        <img src="${img}" alt="${p.nombre}" loading="lazy" />
+      </a>
+    `
+  }).join('')
+
+  await new Promise(r => setTimeout(r, 50))
+  initFadeUpObserver()
+  initScroll()
+}
+
+function initScroll() {
+  const container = document.getElementById('destacados-container')
+  const leftBtn = document.getElementById('scroll-left')
+  const rightBtn = document.getElementById('scroll-right')
+  if (!container) return
+
+  const checkArrows = () => {
+    const atStart = container.scrollLeft <= 10
+    const atEnd = container.scrollLeft >= container.scrollWidth - container.clientWidth - 10
+    leftBtn?.classList.toggle('scroll-arrow--visible', !atStart)
+    rightBtn?.classList.toggle('scroll-arrow--visible', !atEnd)
+  }
+
+  leftBtn?.addEventListener('click', () => {
+    container.scrollBy({ left: -300, behavior: 'smooth' })
+  })
+
+  rightBtn?.addEventListener('click', () => {
+    container.scrollBy({ left: 300, behavior: 'smooth' })
+  })
+
+  container.addEventListener('scroll', checkArrows)
+  setTimeout(checkArrows, 100)
+
+  // Click-and-drag scrolling
+  let isDown = false, startX, scrollLeft
+
+  container.addEventListener('mousedown', (e) => {
+    isDown = true
+    container.style.cursor = 'grabbing'
+    startX = e.pageX - container.offsetLeft
+    scrollLeft = container.scrollLeft
+  })
+
+  container.addEventListener('mouseleave', () => {
+    isDown = false
+    container.style.cursor = 'grab'
+  })
+
+  container.addEventListener('mouseup', () => {
+    isDown = false
+    container.style.cursor = 'grab'
+  })
+
+  container.addEventListener('mousemove', (e) => {
+    if (!isDown) return
+    e.preventDefault()
+    const x = e.pageX - container.offsetLeft
+    const walk = (x - startX) * 1.5
+    container.scrollLeft = scrollLeft - walk
+  })
+
+  container.style.cursor = 'grab'
 }
 
 async function cargarCategorias() {

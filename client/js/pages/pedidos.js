@@ -57,21 +57,27 @@ async function cargarPedidos() {
 
   container.innerHTML = `
     <div style="display:flex;flex-direction:column;gap:var(--space-sm)">
-      ${data.map(pedido => `
-        <a href="#/pedidos/${pedido.id}" class="pedido-card">
-          <div class="pedido-card__header">
-            <span class="pedido-card__id">Pedido #${pedido.id}</span>
-            <span class="status-badge ${statusClass[pedido.estado] || ''}">${pedido.estado}</span>
+      ${data.map(pedido => {
+        const primerProd = pedido.detalles_pedido?.[0]?.productos
+        const imgUrl = primerProd?.imagenes?.[0]?.url
+        return `
+        <a href="#/pedidos/${pedido.id}" class="pedido-card" style="display:flex;align-items:center;gap:var(--space-md)">
+          <div style="width:56px;height:56px;border-radius:10px;overflow:hidden;background:var(--bg-secondary);flex-shrink:0">
+            ${imgUrl ? `<img src="${imgUrl}" alt="" style="width:100%;height:100%;object-fit:contain;padding:4px" />` : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:1.2rem;color:var(--text-tertiary)">📦</div>`}
           </div>
-          <div class="pedido-card__info">
-            <span>${formatDate(pedido.created_at)}</span>
-            <span style="font-weight:var(--weight-semibold)">$${parseFloat(pedido.total_pedido).toFixed(2)}</span>
-          </div>
-          <div class="pedido-card__meta">
-            ${pedido.detalles_pedido?.length || 0} producto(s)
+          <div style="flex:1;min-width:0">
+            <div class="pedido-card__header" style="margin-bottom:4px">
+              <span class="pedido-card__id">Pedido #${pedido.id}</span>
+              <span class="status-badge ${statusClass[pedido.estado] || ''}">${pedido.estado}</span>
+            </div>
+            <div class="pedido-card__info">
+              <span>${formatDate(pedido.created_at)}</span>
+              <span style="font-weight:var(--weight-semibold)">$${parseFloat(pedido.total_pedido).toFixed(2)}</span>
+            </div>
+            <div class="pedido-card__meta">${pedido.detalles_pedido?.length || 0} producto(s)</div>
           </div>
         </a>
-      `).join('')}
+      `}).join('')}
     </div>
   `
 }

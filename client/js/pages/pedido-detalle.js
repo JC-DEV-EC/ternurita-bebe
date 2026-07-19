@@ -69,11 +69,17 @@ function renderDetalle(pedido) {
         <h2 class="pedido-section__title">Productos</h2>
         ${(pedido.detalles_pedido || []).map(det => {
           const producto = det.productos || {}
+          const imgUrl = producto.imagenes?.[0]?.url
           return `
             <div class="pedido-detail-row">
-              <div>
-                <p style="font-weight:var(--weight-medium)">${producto.nombre || 'Producto'}</p>
-                <p style="font-size:var(--text-caption);color:var(--text-secondary)">×${det.cantidad} a $${parseFloat(det.precio_unitario).toFixed(2)}</p>
+              <div style="display:flex;align-items:center;gap:var(--space-md)">
+                <div style="width:48px;height:48px;border-radius:8px;overflow:hidden;background:var(--bg-secondary);flex-shrink:0">
+                  ${imgUrl ? `<img src="${imgUrl}" alt="" style="width:100%;height:100%;object-fit:contain;padding:3px" />` : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:1rem;color:var(--text-tertiary)">📦</div>`}
+                </div>
+                <div>
+                  <p style="font-weight:var(--weight-medium)">${producto.nombre || 'Producto'}</p>
+                  <p style="font-size:var(--text-caption);color:var(--text-secondary)">×${det.cantidad} a $${parseFloat(det.precio_unitario).toFixed(2)}</p>
+                </div>
               </div>
               <p style="font-weight:var(--weight-semibold)">$${(parseFloat(det.precio_unitario) * det.cantidad).toFixed(2)}</p>
             </div>

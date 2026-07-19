@@ -31,11 +31,11 @@ export default function render() {
           </div>
         </div>
 
-        <div style="display:grid;grid-template-columns:220px 1fr;gap:var(--space-xl)">
+        <div style="display:grid;grid-template-columns:240px 1fr;gap:var(--space-xl)">
           <aside style="position:sticky;top:calc(var(--nav-height) + var(--space-md));align-self:start">
-            <div style="background:var(--bg-secondary);border-radius:18px;padding:var(--space-lg)">
+            <div class="card" style="padding:var(--space-lg)">
               <h3 style="font-size:var(--text-caption);font-weight:var(--weight-semibold);text-transform:uppercase;letter-spacing:var(--tracking-wide);color:var(--text-tertiary);margin-bottom:var(--space-md)">Categorías</h3>
-              <div id="categorias-filtro"></div>
+              <div id="categorias-filtro" class="cat-filter"></div>
             </div>
           </aside>
 
@@ -106,6 +106,18 @@ export async function afterRender() {
   })
 }
 
+const CAT_ICONS = {
+  'prendas-superiores': '👕',
+  'prendas-inferiores': '👖',
+  'mamelucos': '🦺',
+  'exteriores': '🧥',
+  'transporte': '🚼',
+  'higiene': '🧴',
+  'accesorios': '🧢',
+  'juguetes': '🧸',
+  'cuidado': '💚',
+}
+
 async function cargarCategoriasFiltro() {
   const container = document.getElementById('categorias-filtro')
   if (!container) return
@@ -114,28 +126,19 @@ async function cargarCategoriasFiltro() {
   if (error || !data) return
 
   container.innerHTML = `
-    <button class="btn-filtro-cat" data-categoria=""
-      style="display:block;width:100%;text-align:left;padding:var(--space-xs) var(--space-sm);border-radius:8px;font-size:var(--text-caption);margin-bottom:2px;transition:all var(--duration-fast) var(--ease-smooth);${!estado.categoria ? 'background:var(--accent-light);color:var(--accent);font-weight:var(--weight-medium)' : 'color:var(--text-secondary);background:transparent'}">
-      Todas
+    <button class="cat-filter__btn ${!estado.categoria ? 'cat-filter__btn--active' : ''}" data-categoria="">
+      <span class="cat-filter__icon">✨</span>
+      <span class="cat-filter__label">Todas</span>
     </button>
     ${data.map(cat => `
-      <button class="btn-filtro-cat" data-categoria="${cat.slug}"
-        style="display:block;width:100%;text-align:left;padding:var(--space-xs) var(--space-sm);border-radius:8px;font-size:var(--text-caption);margin-bottom:2px;transition:all var(--duration-fast) var(--ease-smooth);${estado.categoria === cat.slug ? 'background:var(--accent-light);color:var(--accent);font-weight:var(--weight-medium)' : 'color:var(--text-secondary);background:transparent'}">
-        ${cat.nombre}
+      <button class="cat-filter__btn ${estado.categoria === cat.slug ? 'cat-filter__btn--active' : ''}" data-categoria="${cat.slug}">
+        <span class="cat-filter__icon">${CAT_ICONS[cat.slug] || '📦'}</span>
+        <span class="cat-filter__label">${cat.nombre}</span>
       </button>
     `).join('')}
   `
 
-  container.querySelectorAll('.btn-filtro-cat').forEach(btn => {
-    btn.addEventListener('mouseenter', () => {
-      if (!btn.dataset.categoria !== estado.categoria) {
-        btn.style.background = 'var(--overlay)'
-      }
-    })
-    btn.addEventListener('mouseleave', () => {
-      const isActive = btn.dataset.categoria === estado.categoria
-      btn.style.background = isActive ? 'var(--accent-light)' : 'transparent'
-    })
+  container.querySelectorAll('.cat-filter__btn').forEach(btn => {
     btn.addEventListener('click', () => {
       estado.categoria = btn.dataset.categoria
       estado.pagina = 1

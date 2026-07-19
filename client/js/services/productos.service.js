@@ -24,14 +24,19 @@ export async function listar({ categoria, busqueda, pagina = 1, porPagina = 12 }
 }
 
 export async function obtenerPorSlug(slug) {
-  const { data, error } = await supabase
+  let query = supabase
     .from('productos')
     .select('*, categorias(nombre, slug), imagenes(*)')
-    .eq('slug', slug)
     .eq('activo', true)
     .is('deleted_at', null)
-    .single()
 
+  if (/^\d+$/.test(slug)) {
+    query = query.eq('id', parseInt(slug))
+  } else {
+    query = query.eq('slug', slug)
+  }
+
+  const { data, error } = await query.maybeSingle()
   return { data, error }
 }
 

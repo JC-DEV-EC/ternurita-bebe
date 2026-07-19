@@ -2,7 +2,7 @@ const { Router } = require('express');
 const { authMiddleware } = require('../../middleware/auth.middleware');
 const { adminMiddleware } = require('../../middleware/admin.middleware');
 const {
-  listar, crear, actualizar, eliminar, subirImagen, upload,
+  listar, crear, actualizar, eliminar, subirImagen, eliminarImagen, upload,
 } = require('../../controllers/admin/productos.controller');
 
 const router = Router();
@@ -14,5 +14,6 @@ router.post('/', crear);
 router.put('/:id', actualizar);
 router.delete('/:id', eliminar);
 router.post('/:id/imagenes', upload.single('imagen'), subirImagen);
+router.delete('/:id/imagenes/:imagenId', eliminarImagen);
 
 module.exports = router;

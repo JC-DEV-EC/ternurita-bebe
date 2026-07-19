@@ -3,6 +3,17 @@ const { createProductoSchema, updateProductoSchema } = require('../../validators
 const logger = require('../../utils/logger');
 const multer = require('multer');
 
+function generarSlug(texto) {
+  return texto
+    .toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '')
+    .trim();
+}
+
 const upload = multer({
   storage: multer.memoryStorage(),
   limits: { fileSize: 5 * 1024 * 1024 },
@@ -60,12 +71,7 @@ async function crear(req, res) {
       });
     }
 
-    if (!validation.data.slug) {
-      validation.data.slug = validation.data.nombre
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g, '-')
-        .replace(/^-|-$/g, '');
-    }
+    validation.data.slug = generarSlug(validation.data.slug || validation.data.nombre);
 
     const { data, error } = await supabase
       .from('productos')
@@ -95,6 +101,9 @@ async function actualizar(req, res) {
     }
 
     const updateData = { ...validation.data, updated_at: new Date().toISOString() };
+    if (updateData.nombre || updateData.slug) {
+      updateData.slug = generarSlug(updateData.slug || updateData.nombre);
+    }
 
     const { data, error } = await supabase
       .from('productos')
@@ -176,4 +185,34 @@ async function subirImagen(req, res) {
   }
 }
 
-module.exports = { listar, crear, actualizar, eliminar, subirImagen, upload };
+async function eliminarImagen(req, res) {
+  try {
+    const { id, imagenId } = req.params;
+    const { data: img, error: fetchError } = await supabase
+      .from('imagenes')
+      .select('*')
+      .eq('id', imagenId)
+      .eq('producto_id', id)
+      .single();
+    if (fetchError || !img) {
+      return res.status(404).json({ error: 'Imagen no encontrada' });
+    }
+    const urlPath = new URL(img.url).pathname;
+    const storagePath = urlPath.replace(/^\/storage\/v1\/object\/public\/productos\//, '');
+    if (storagePath) {
+      await supabase.storage.from('productos').remove([storagePath]);
+    }
+    const { error: deleteError } = await supabase
+      .from('imagenes')
+      .delete()
+      .eq('id', imagenId);
+    if (deleteError) throw deleteError;
+    logger.info({ producto_id: id, imagen_id: imagenId }, 'Imagen eliminada');
+    res.json({ message: 'Imagen eliminada' });
+  } catch (err) {
+    logger.error({ error: err.message }, 'Error eliminando imagen');
+    res.status(500).json({ error: 'Error al eliminar imagen' });
+  }
+}
+
+module.exports = { listar, crear, actualizar, eliminar, subirImagen, eliminarImagen, upload };

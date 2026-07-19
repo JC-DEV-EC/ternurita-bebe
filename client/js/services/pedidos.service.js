@@ -5,7 +5,7 @@ import store from '../store.js'
 export async function misPedidos(clienteId) {
   const { data, error } = await supabase
     .from('pedidos')
-    .select('*, detalles_pedido(*, productos(nombre, slug))')
+    .select('*, detalles_pedido(*, productos(nombre, slug, imagenes(*)))')
     .eq('cliente_id', clienteId)
     .order('created_at', { ascending: false })
 

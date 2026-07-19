@@ -16,21 +16,16 @@ async function listar(req, res) {
 
     if (error) throw error;
 
-    const userIds = perfiles.map(p => p.id);
-
-    const { data: authUsers, error: authError } = await supabase
-      .from('auth.users')
-      .select('id, email, raw_app_meta_data, raw_user_meta_data, created_at')
-      .in('id', userIds);
+    const { data: authUsers, error: authError } = await supabase.auth.admin.listUsers();
 
     if (authError) throw authError;
 
     const authMap = {};
-    if (authUsers) {
-      authUsers.forEach(u => {
+    if (authUsers?.users) {
+      authUsers.users.forEach(u => {
         authMap[u.id] = {
           email: u.email,
-          rol: u.raw_app_meta_data?.rol || u.raw_user_meta_data?.rol || 'cliente',
+          rol: u.app_metadata?.rol || u.user_metadata?.rol || 'cliente',
         };
       });
     }

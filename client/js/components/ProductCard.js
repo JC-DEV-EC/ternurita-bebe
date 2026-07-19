@@ -7,12 +7,12 @@ export function renderProductCard(producto) {
 
   return `
     <div class="product-card fade-up">
-      <a href="#/productos/${producto.slug}" class="product-card__image-wrap">
+      <a href="#/productos/${producto.slug || producto.id}" class="product-card__image-wrap">
         <img src="${imagen}" alt="${producto.nombre}" class="product-card__image" loading="lazy" />
       </a>
       <div class="product-card__body">
         <h3 class="product-card__name">
-          <a href="#/productos/${producto.slug}">${producto.nombre}</a>
+          <a href="#/productos/${producto.slug || producto.id}">${producto.nombre}</a>
         </h3>
         <div class="product-card__footer">
           <div>

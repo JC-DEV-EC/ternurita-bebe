@@ -44,6 +44,7 @@ export const productos = {
     if (!response.ok) throw new Error(data.error || 'Error al subir imagen')
     return data
   },
+  eliminarImagen: (id, imagenId) => request('DELETE', `/api/admin/productos/${id}/imagenes/${imagenId}`),
 }
 
 export const pedidos = {
