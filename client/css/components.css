@@ -452,6 +452,7 @@
   background: url('../assets/images/img-hero1.jpg') center / cover no-repeat;
   opacity: 0;
   transition: opacity var(--duration-slow) var(--ease-smooth);
+  z-index: 1;
 }
 
 .hero:hover .hero__bg::after {
