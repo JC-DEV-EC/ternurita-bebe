@@ -588,13 +588,7 @@
   }
 
   .sticky-scroll__media {
-    position: relative;
-    height: 50vh;
-    top: var(--nav-height);
-  }
-
-  .sticky-scroll__img {
-    width: 60%;
+    display: none;
   }
 
   .sticky-scroll__content {
@@ -603,8 +597,8 @@
 
   .sticky-scroll__panel {
     height: auto;
-    min-height: 50vh;
-    padding: var(--space-xl) var(--space-md);
+    min-height: 70vh;
+    padding: var(--space-2xl) var(--space-md);
     opacity: 1;
     transform: none;
   }
