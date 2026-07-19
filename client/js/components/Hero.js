@@ -21,6 +21,9 @@ export function initHeroParallax() {
 
   window.addEventListener('scroll', () => {
     const scrolled = window.scrollY
+    const vh = window.innerHeight
+    const progress = Math.min(scrolled / (vh * 0.8), 1)
     bg.style.transform = `translateY(${scrolled * 0.15}px) scale(1.05)`
+    bg.style.opacity = 1 - progress
   }, { passive: true })
 }
