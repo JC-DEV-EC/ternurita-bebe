@@ -1,8 +1,10 @@
+import { placeholderImg } from '../utils.js'
+
 export function renderHero({ title, subtitle, badge, ctaText, ctaLink, imageUrl, imageAlt }) {
   return `
     <section class="hero" id="hero">
       <div class="hero__bg">
-        <img src="${imageUrl || 'https://placehold.co/1400x900/F5F5F7/D2D2D7?text=Ternurita+Bebé'}"
+        <img src="${imageUrl || placeholderImg(1400, 900, 'Ternurita Bebé')}"
              alt="${imageAlt || ''}"
              id="hero-img" />
       </div>

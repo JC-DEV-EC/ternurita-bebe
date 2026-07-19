@@ -1,5 +1,7 @@
+import { placeholderImg } from '../utils.js'
+
 export function renderProductCard(producto) {
-  const imagen = producto.imagenes?.[0]?.url || 'https://placehold.co/600x600/F5F5F7/D2D2D7?text=Sin+imagen'
+  const imagen = producto.imagenes?.[0]?.url || placeholderImg(600, 600, 'Sin imagen')
   const precioOferta = producto.precio_oferta
   const tieneOferta = precioOferta && precioOferta < producto.precio
 

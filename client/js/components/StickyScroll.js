@@ -1,3 +1,5 @@
+import { placeholderImg } from '../utils.js'
+
 export function renderStickyScroll(panels) {
   const defaultPanels = [
     {
@@ -22,7 +24,7 @@ export function renderStickyScroll(panels) {
   return `
     <section class="sticky-scroll" id="sticky-scroll">
       <div class="sticky-scroll__media">
-        <img src="https://placehold.co/480x640/F5E6E6/E8A0A0?text=Producto"
+        <img src="${placeholderImg(480, 640, 'Producto', '#F5E6E6', '#E8A0A0')}"
              alt="Producto destacado"
              class="sticky-scroll__img"
              id="sticky-img"

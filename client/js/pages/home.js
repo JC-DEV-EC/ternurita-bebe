@@ -3,7 +3,7 @@ import { listar as listarCategorias } from '../services/categorias.service.js'
 import { renderProductCard } from '../components/ProductCard.js'
 import { renderHero, initHeroParallax } from '../components/Hero.js'
 import { renderStickyScroll, initStickyScroll } from '../components/StickyScroll.js'
-import { showToast, initFadeAnimations } from '../utils.js'
+import { showToast, initFadeAnimations, placeholderImg } from '../utils.js'
 import store from '../store.js'
 import { agregar } from '../services/carrito.service.js'
 
@@ -25,19 +25,19 @@ export default function render() {
         <h2 class="headline-display" style="margin-bottom:var(--space-lg)">Explora nuestra colección</h2>
         <div class="gallery-grid stagger-children" id="gallery-grid">
           <div class="gallery-grid__item gallery-grid__item--wide">
-            <img src="https://placehold.co/800x400/F5E6E6/E8A0A0?text=Body+de+algodón" alt="Body de algodón" loading="lazy" />
+            <img src="${placeholderImg(800, 400, 'Body de algodón', '#F5E6E6', '#E8A0A0')}" alt="Body de algodón" loading="lazy" />
           </div>
           <div class="gallery-grid__item">
-            <img src="https://placehold.co/400x400/E8F4F0/7EC8A0?text=Gorrito" alt="Gorrito" loading="lazy" />
+            <img src="${placeholderImg(400, 400, 'Gorrito', '#E8F4F0', '#7EC8A0')}" alt="Gorrito" loading="lazy" />
           </div>
           <div class="gallery-grid__item">
-            <img src="https://placehold.co/400x400/FFF0E6/E8A080?text=Calcetines" alt="Calcetines" loading="lazy" />
+            <img src="${placeholderImg(400, 400, 'Calcetines', '#FFF0E6', '#E8A080')}" alt="Calcetines" loading="lazy" />
           </div>
           <div class="gallery-grid__item">
-            <img src="https://placehold.co/400x400/F0E8FF/A080E8?text=Set+regalo" alt="Set de regalo" loading="lazy" />
+            <img src="${placeholderImg(400, 400, 'Set regalo', '#F0E8FF', '#A080E8')}" alt="Set de regalo" loading="lazy" />
           </div>
           <div class="gallery-grid__item">
-            <img src="https://placehold.co/400x400/FFF8E6/E8C880?text=Toalla" alt="Toalla" loading="lazy" />
+            <img src="${placeholderImg(400, 400, 'Toalla', '#FFF8E6', '#E8C880')}" alt="Toalla" loading="lazy" />
           </div>
         </div>
       </div>

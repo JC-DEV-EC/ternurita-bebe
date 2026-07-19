@@ -1,5 +1,5 @@
 import { obtenerPorSlug } from '../services/productos.service.js'
-import { showToast } from '../utils.js'
+import { showToast, placeholderImg } from '../utils.js'
 import store from '../store.js'
 import { agregar } from '../services/carrito.service.js'
 
@@ -38,7 +38,7 @@ function renderGallery(producto) {
   if (!container) return
 
   const imagenes = producto.imagenes || []
-  const mainUrl = imagenes[0]?.url || 'https://placehold.co/600x800/F5F5F7/D2D2D7?text=Sin+imagen'
+  const mainUrl = imagenes[0]?.url || placeholderImg(600, 800, 'Sin imagen')
 
   let html = `<div class="product-detail__main-img"><img src="${mainUrl}" alt="${producto.nombre}" id="main-image" /></div>`
 

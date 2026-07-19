@@ -40,6 +40,11 @@ export function getParamsFromPath(pattern, hash) {
   return params
 }
 
+export function placeholderImg(w, h, text, bg, fg) {
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}"><rect fill="${bg || '#F5F5F7'}" width="${w}" height="${h}"/><text fill="${fg || '#D2D2D7'}" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="16" x="50%" y="50%" text-anchor="middle" dominant-baseline="middle">${(text || 'Sin imagen').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}</text></svg>`
+  return `data:image/svg+xml,${encodeURIComponent(svg)}`
+}
+
 export function initFadeAnimations(container) {
   const root = container || document
 

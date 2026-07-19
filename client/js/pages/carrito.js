@@ -1,6 +1,6 @@
 import store from '../store.js'
 import { obtener, actualizarCantidad, eliminarItem } from '../services/carrito.service.js'
-import { showToast } from '../utils.js'
+import { showToast, placeholderImg } from '../utils.js'
 
 export default function render() {
   return `
@@ -92,7 +92,7 @@ function renderItemRow(item) {
   if (!producto) return ''
 
   const precioUnitario = producto.precio_oferta || producto.precio
-  const imagen = producto.imagenes?.[0]?.url || 'https://placehold.co/160x160/F5F5F7/D2D2D7?text=No'
+  const imagen = producto.imagenes?.[0]?.url || placeholderImg(160, 160, 'No')
 
   return `
     <div class="cart-item-row" data-item-id="${item.id}">
