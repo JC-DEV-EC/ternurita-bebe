@@ -442,6 +442,24 @@
   height: 100%;
   object-fit: cover;
   will-change: transform;
+  transition: opacity var(--duration-slow) var(--ease-smooth);
+}
+
+.hero__bg::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: url('../assets/images/img-hero1.jpg') center / cover no-repeat;
+  opacity: 0;
+  transition: opacity var(--duration-slow) var(--ease-smooth);
+}
+
+.hero:hover .hero__bg::after {
+  opacity: 1;
+}
+
+.hero:hover .hero__bg img {
+  opacity: 0;
 }
 
 .hero__overlay {
