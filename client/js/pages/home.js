@@ -2,7 +2,7 @@ import { destacados } from '../services/productos.service.js'
 import { renderProductCard } from '../components/ProductCard.js'
 import { renderHero, initHeroParallax } from '../components/Hero.js'
 import { renderStickyScroll, initStickyScroll } from '../components/StickyScroll.js'
-import { showToast, initFadeAnimations, placeholderImg } from '../utils.js'
+import { showToast, initFadeAnimations, initIcons, placeholderImg } from '../utils.js'
 import store from '../store.js'
 import { agregar } from '../services/carrito.service.js'
 
@@ -30,17 +30,17 @@ export default function render() {
       <div class="container">
         <div class="features-grid stagger-children" id="features-grid">
           <div>
-            <div class="features-grid__icon">🌿</div>
+            <div class="features-grid__icon"><i data-lucide="sprout" style="width:28px;height:28px"></i></div>
             <h3 class="features-grid__title">Materiales naturales</h3>
             <p class="features-grid__desc">Algodón orgánico certificado, libre de químicos y pesticidas.</p>
           </div>
           <div>
-            <div class="features-grid__icon">🤲</div>
+            <div class="features-grid__icon"><i data-lucide="heart" style="width:28px;height:28px"></i></div>
             <h3 class="features-grid__title">Hecho a mano</h3>
             <p class="features-grid__desc">Cada prenda es elaborada por artesanos locales con dedicación.</p>
           </div>
           <div>
-            <div class="features-grid__icon">📦</div>
+            <div class="features-grid__icon"><i data-lucide="package" style="width:28px;height:28px"></i></div>
             <h3 class="features-grid__title">Envío seguro</h3>
             <p class="features-grid__desc">Empaquetado cuidadosamente para que llegue perfecto a tu hogar.</p>
           </div>
@@ -71,6 +71,7 @@ export default function render() {
 }
 
 export async function afterRender() {
+  initIcons()
   initHeroParallax()
   initStickyScroll()
   initFadeUpObserver()
@@ -133,6 +134,7 @@ async function cargarDestacados() {
 
   await new Promise(r => setTimeout(r, 50))
   initFadeUpObserver()
+  initIcons()
 }
 
 
@@ -157,7 +159,7 @@ function cargarGaleria() {
     `
   }).join('')
 
-  setTimeout(() => { initFadeAnimations() }, 50)
+  setTimeout(() => { initFadeAnimations(); initIcons() }, 50)
 }
 
 function initScroll() {

@@ -31,16 +31,11 @@ export function renderNavbar(container) {
         </div>
         <div style="display:flex;align-items:center;gap:var(--space-sm)">
           <a href="#/carrito" class="navbar__cart" id="cart-link">
-            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M5 5V4a3 3 0 0 1 6 0v1"/>
-              <path d="M2.5 5h13l-1 10H3.5L2.5 5z"/>
-            </svg>
+            <i data-lucide="shopping-bag" style="width:18px;height:18px"></i>
             <span class="navbar__cart-count" id="cart-count" style="${store.carritoCount > 0 ? '' : 'display:none'}">${store.carritoCount}</span>
           </a>
           <button class="navbar__menu-btn" id="menu-btn" aria-label="Menú">
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
-              <path d="M3 5h14M3 10h14M3 15h14"/>
-            </svg>
+            <i data-lucide="menu" style="width:20px;height:20px"></i>
           </button>
         </div>
       </div>

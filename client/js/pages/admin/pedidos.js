@@ -1,6 +1,6 @@
 import { renderAdminSidebar } from '../../components/AdminSidebar.js'
 import { pedidos } from '../../services/admin.service.js'
-import { formatPrecio, formatDate, showToast } from '../../utils.js'
+import { formatPrecio, formatDate, showToast, initIcons } from '../../utils.js'
 
 const badges = {
   pendiente: 'badge badge-warning',
@@ -53,6 +53,7 @@ export default function render() {
 export async function afterRender() {
   const sidebar = document.getElementById('admin-sidebar')
   if (sidebar) renderAdminSidebar(sidebar)
+  initIcons()
 
   await cargarPedidos()
 

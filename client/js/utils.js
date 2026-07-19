@@ -45,6 +45,12 @@ export function placeholderImg(w, h, text, bg, fg) {
   return `data:image/svg+xml,${encodeURIComponent(svg)}`
 }
 
+export function initIcons() {
+  if (window.lucide) {
+    window.lucide.createIcons()
+  }
+}
+
 export function initFadeAnimations(container) {
   const root = container || document
 

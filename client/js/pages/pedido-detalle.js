@@ -1,6 +1,6 @@
 import store from '../store.js'
 import { detallePedido } from '../services/pedidos.service.js'
-import { formatDate } from '../utils.js'
+import { formatDate, initIcons } from '../utils.js'
 
 const statusClass = {
   pendiente: 'status-badge--pendiente',
@@ -14,7 +14,7 @@ export default function render(params) {
     <div style="padding-top:calc(var(--nav-height) + var(--space-lg))">
       <div class="container" style="max-width:720px">
         <a href="#/pedidos" style="display:inline-flex;align-items:center;gap:var(--space-xs);font-size:var(--text-caption);color:var(--text-secondary);margin-bottom:var(--space-lg);transition:color var(--duration-fast) var(--ease-smooth)">
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10 3L5 8l5 5"/></svg>
+          <i data-lucide="chevron-left" style="width:16px;height:16px"></i>
           Mis pedidos
         </a>
         <h1 class="headline-display" style="margin-bottom:var(--space-xl)">Pedido #${params?.id || ''}</h1>
@@ -74,7 +74,7 @@ function renderDetalle(pedido) {
             <div class="pedido-detail-row">
               <div style="display:flex;align-items:center;gap:var(--space-md)">
                 <div style="width:48px;height:48px;border-radius:8px;overflow:hidden;background:var(--bg-secondary);flex-shrink:0">
-                  ${imgUrl ? `<img src="${imgUrl}" alt="" style="width:100%;height:100%;object-fit:contain;padding:3px" />` : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:1rem;color:var(--text-tertiary)">📦</div>`}
+                  ${imgUrl ? `<img src="${imgUrl}" alt="" style="width:100%;height:100%;object-fit:contain;padding:3px" />` : `<i data-lucide="package" style="width:20px;height:20px;color:var(--text-tertiary)"></i>`}
                 </div>
                 <div>
                   <p style="font-weight:var(--weight-medium)">${producto.nombre || 'Producto'}</p>
@@ -111,4 +111,5 @@ function renderDetalle(pedido) {
       ` : ''}
     </div>
   `
+  initIcons()
 }

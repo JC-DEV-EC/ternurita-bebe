@@ -1,6 +1,6 @@
 import store from '../store.js'
 import { obtener, actualizarCantidad, eliminarItem } from '../services/carrito.service.js'
-import { showToast, placeholderImg } from '../utils.js'
+import { showToast, initIcons, placeholderImg } from '../utils.js'
 
 export default function render() {
   return `
@@ -40,7 +40,7 @@ async function loadCart() {
   if (!data || data.length === 0) {
     container.innerHTML = `
       <div class="cart-page__empty">
-        <div class="cart-page__empty-icon">🛍️</div>
+        <i data-lucide="shopping-bag" class="cart-page__empty-icon" style="width:48px;height:48px;stroke-width:1.2"></i>
         <h2 style="font-size:var(--text-title);font-weight:var(--weight-semibold);margin-bottom:var(--space-sm)">Tu carrito está vacío</h2>
         <p style="color:var(--text-secondary);margin-bottom:var(--space-lg)">Explora nuestra colección y agrega productos.</p>
         <a href="#/productos" class="btn btn--primary">Ver productos</a>
@@ -84,6 +84,7 @@ async function loadCart() {
     </div>
   `
 
+  initIcons()
   setupEvents()
 }
 
@@ -108,9 +109,7 @@ function renderItemRow(item) {
       </div>
       <div class="cart-item-row__total">$${(precioUnitario * item.cantidad).toFixed(2)}</div>
       <button class="cart-item-row__remove btn-remove-item" title="Eliminar">
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
-          <path d="M2 4h12M5 4V2.5A.5.5 0 0 1 5.5 2h3a.5.5 0 0 1 .5.5V4M12.5 4L12 13a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1L3.5 4"/>
-        </svg>
+        <i data-lucide="trash-2" style="width:16px;height:16px"></i>
       </button>
     </div>
   `

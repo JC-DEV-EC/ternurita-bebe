@@ -2,7 +2,7 @@ import { listar as listarProductos } from '../services/productos.service.js'
 import { listar as listarCategorias } from '../services/categorias.service.js'
 import { renderProductCard } from '../components/ProductCard.js'
 import { renderPagination } from '../components/Pagination.js'
-import { showToast, debounce, initFadeAnimations } from '../utils.js'
+import { showToast, debounce, initFadeAnimations, initIcons } from '../utils.js'
 import store from '../store.js'
 import { agregar } from '../services/carrito.service.js'
 
@@ -23,10 +23,7 @@ export default function render() {
             <h1 class="headline-display">Productos</h1>
           </div>
           <div style="position:relative;width:100%;max-width:320px">
-            <svg style="position:absolute;left:1rem;top:50%;transform:translateY(-50%);width:16px;height:16px;color:var(--text-tertiary);pointer-events:none" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
-              <circle cx="7" cy="7" r="5.5"/>
-              <path d="M11.5 11.5L15 15"/>
-            </svg>
+            <i data-lucide="search" style="position:absolute;left:1rem;top:50%;transform:translateY(-50%);width:16px;height:16px;color:var(--text-tertiary);pointer-events:none"></i>
             <input type="text" id="input-busqueda" class="input" style="padding-left:2.75rem" placeholder="Buscar productos..." value="${estado.busqueda}">
           </div>
         </div>
@@ -107,15 +104,15 @@ export async function afterRender() {
 }
 
 const CAT_ICONS = {
-  'prendas-superiores': '👕',
-  'prendas-inferiores': '👖',
-  'mamelucos': '🦺',
-  'exteriores': '🧥',
-  'transporte': '🚼',
-  'higiene': '🧴',
-  'accesorios': '🧢',
-  'juguetes': '🧸',
-  'cuidado': '💚',
+  'prendas-superiores': 'shirt',
+  'prendas-inferiores': 'shirt',
+  'mamelucos': 'baby',
+  'exteriores': 'sun',
+  'transporte': 'car',
+  'higiene': 'droplets',
+  'accesorios': 'gift',
+  'juguetes': 'toy-brick',
+  'cuidado': 'heart',
 }
 
 async function cargarCategoriasFiltro() {
@@ -127,16 +124,18 @@ async function cargarCategoriasFiltro() {
 
   container.innerHTML = `
     <button class="cat-filter__btn ${!estado.categoria ? 'cat-filter__btn--active' : ''}" data-categoria="">
-      <span class="cat-filter__icon">✨</span>
+      <i data-lucide="grid" class="cat-filter__icon" style="width:16px;height:16px"></i>
       <span class="cat-filter__label">Todas</span>
     </button>
     ${data.map(cat => `
       <button class="cat-filter__btn ${estado.categoria === cat.slug ? 'cat-filter__btn--active' : ''}" data-categoria="${cat.slug}">
-        <span class="cat-filter__icon">${CAT_ICONS[cat.slug] || '📦'}</span>
+        <i data-lucide="${CAT_ICONS[cat.slug] || 'package'}" class="cat-filter__icon" style="width:16px;height:16px"></i>
         <span class="cat-filter__label">${cat.nombre}</span>
       </button>
     `).join('')}
   `
+
+  initIcons()
 
   container.querySelectorAll('.cat-filter__btn').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -174,6 +173,7 @@ async function cargarProductos() {
 
   grid.innerHTML = data.map(p => renderProductCard(p)).join('')
   initFadeAnimations()
+  initIcons()
 
   if (pagContainer) {
     renderPagination(pagContainer, {

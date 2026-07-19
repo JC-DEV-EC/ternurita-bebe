@@ -2,7 +2,7 @@ import { renderAdminSidebar } from '../../components/AdminSidebar.js'
 import { openModal, cerrarModal } from '../../components/Modal.js'
 import { productos } from '../../services/admin.service.js'
 import { listar as listarCategorias } from '../../services/categorias.service.js'
-import { showToast } from '../../utils.js'
+import { showToast, initIcons } from '../../utils.js'
 
 export default function render() {
   return `
@@ -44,6 +44,7 @@ export default function render() {
 export async function afterRender() {
   const sidebar = document.getElementById('admin-sidebar')
   if (sidebar) renderAdminSidebar(sidebar)
+  initIcons()
 
   await cargarProductos()
 
@@ -72,7 +73,7 @@ async function cargarProductos() {
       <tr style="border-bottom:1px solid var(--border-light);transition:background var(--duration-fast) var(--ease-smooth)">
         <td style="padding:var(--space-sm) var(--space-md)">
           <div style="width:40px;height:40px;border-radius:8px;overflow:hidden;background:var(--bg-secondary)">
-            ${imgUrl ? `<img src="${imgUrl}" alt="" style="width:100%;height:100%;object-fit:cover">` : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:1rem;color:var(--text-tertiary)">📦</div>`}
+            ${imgUrl ? `<img src="${imgUrl}" alt="" style="width:100%;height:100%;object-fit:cover">` : `<i data-lucide="package" style="width:16px;height:16px;color:var(--text-tertiary)"></i>`}
           </div>
         </td>
         <td style="padding:var(--space-sm) var(--space-md)">
@@ -137,7 +138,7 @@ async function abrirModalProducto(producto) {
         ${imagenes.map(img => `
           <div style="position:relative;width:100%;aspect-ratio:1;border-radius:8px;overflow:hidden;background:var(--bg-secondary);border:1px solid var(--border-light)" data-img-id="${img.id}">
             <img src="${img.url}" alt="" style="width:100%;height:100%;object-fit:cover;display:block;cursor:pointer" class="admin-img-preview">
-            <button type="button" class="btn-del-img" data-img-id="${img.id}" style="position:absolute;top:2px;right:2px;width:20px;height:20px;border-radius:50%;background:rgba(0,0,0,0.5);color:white;font-size:12px;display:flex;align-items:center;justify-content:center;border:none;cursor:pointer;opacity:0;transition:opacity var(--duration-fast)">✕</button>
+            <button type="button" class="btn-del-img" data-img-id="${img.id}" style="position:absolute;top:2px;right:2px;width:20px;height:20px;border-radius:50%;background:rgba(0,0,0,0.5);color:white;display:flex;align-items:center;justify-content:center;border:none;cursor:pointer;opacity:0;transition:opacity var(--duration-fast)"><i data-lucide="x" style="width:12px;height:12px"></i></button>
           </div>
         `).join('')}
       </div>
