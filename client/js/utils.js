@@ -39,3 +39,25 @@ export function getParamsFromPath(pattern, hash) {
   }
   return params
 }
+
+export function initFadeAnimations(container) {
+  const root = container || document
+
+  if (typeof IntersectionObserver === 'undefined') {
+    root.querySelectorAll('.fade-up, .stagger-children').forEach(el => el.classList.add('is-visible'))
+    return () => {}
+  }
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('is-visible')
+        observer.unobserve(entry.target)
+      }
+    })
+  }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' })
+
+  root.querySelectorAll('.fade-up, .stagger-children').forEach(el => observer.observe(el))
+
+  return () => observer.disconnect()
+}

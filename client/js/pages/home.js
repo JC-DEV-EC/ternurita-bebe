@@ -3,7 +3,7 @@ import { listar as listarCategorias } from '../services/categorias.service.js'
 import { renderProductCard } from '../components/ProductCard.js'
 import { renderHero, initHeroParallax } from '../components/Hero.js'
 import { renderStickyScroll, initStickyScroll } from '../components/StickyScroll.js'
-import { showToast } from '../utils.js'
+import { showToast, initFadeAnimations } from '../utils.js'
 import store from '../store.js'
 import { agregar } from '../services/carrito.service.js'
 
@@ -152,22 +152,5 @@ async function cargarCategorias() {
 }
 
 function initFadeUpObserver() {
-  if (typeof IntersectionObserver === 'undefined') {
-    document.querySelectorAll('.fade-up, .stagger-children').forEach(el => el.classList.add('is-visible'))
-    return
-  }
-
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add('is-visible')
-        observer.unobserve(entry.target)
-      }
-    })
-  }, {
-    threshold: 0.1,
-    rootMargin: '0px 0px -40px 0px',
-  })
-
-  document.querySelectorAll('.fade-up, .stagger-children').forEach(el => observer.observe(el))
+  initFadeAnimations()
 }

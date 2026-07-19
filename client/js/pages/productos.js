@@ -2,7 +2,7 @@ import { listar as listarProductos } from '../services/productos.service.js'
 import { listar as listarCategorias } from '../services/categorias.service.js'
 import { renderProductCard } from '../components/ProductCard.js'
 import { renderPagination } from '../components/Pagination.js'
-import { showToast, debounce } from '../utils.js'
+import { showToast, debounce, initFadeAnimations } from '../utils.js'
 import store from '../store.js'
 import { agregar } from '../services/carrito.service.js'
 
@@ -72,6 +72,7 @@ export async function afterRender() {
   }
 
   await cargarProductos()
+  initFadeAnimations()
 
   const grid = document.getElementById('productos-grid')
   grid?.addEventListener('click', async (e) => {
@@ -169,6 +170,7 @@ async function cargarProductos() {
   }
 
   grid.innerHTML = data.map(p => renderProductCard(p)).join('')
+  initFadeAnimations()
 
   if (pagContainer) {
     renderPagination(pagContainer, {
