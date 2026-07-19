@@ -137,11 +137,11 @@ async function cargarDestacados() {
 
 
 const galeriaItems = [
-  { nombre: 'Bodies de algodón', slug: 'bodies-algodon', wide: true, bg: '#F5E6E6', fg: '#E8A0A0', imagen: 'Assets/images/img-categoria-exterior.png'},
-  { nombre: 'Gorritos', slug: 'gorritos', wide: false, bg: '#E8F4F0', fg: '#7EC8A0' },
-  { nombre: 'Calcetines y medias', slug: 'calcetines', wide: false, bg: '#FFF0E6', fg: '#E8A080' },
-  { nombre: 'Sets de regalo', slug: 'sets-regalo', wide: false, bg: '#F0E8FF', fg: '#A080E8' },
-  { nombre: 'Toallas y accesorios', slug: 'toallas', wide: false, bg: '#FFF8E6', fg: '#E8C880' },
+  { nombre: 'Mamelucos', slug: 'mamelucos', wide: true, bg: '#F5E6E6', fg: '#E8A0A0' },
+  { nombre: 'Accesorios', slug: 'accesorios', wide: false, bg: '#E8F4F0', fg: '#7EC8A0' },
+  { nombre: 'Prendas inferiores', slug: 'prendas-inferiores', wide: false, bg: '#FFF0E6', fg: '#E8A080' },
+  { nombre: 'Juguetes', slug: 'juguetes', wide: false, bg: '#F0E8FF', fg: '#A080E8' },
+  { nombre: 'Higiene', slug: 'higiene', wide: false, bg: '#FFF8E6', fg: '#E8C880' },
 ]
 
 function cargarGaleria() {
