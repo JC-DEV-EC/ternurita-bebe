@@ -11,6 +11,7 @@ const logger = require('./utils/logger');
 const checkoutRoutes = require('./routes/checkout.routes');
 const authRoutes = require('./routes/auth.routes');
 const searchRoutes = require('./routes/search.routes');
+const perfilRoutes = require('./routes/perfil.routes');
 const adminRoutes = require('./routes/admin');
 
 const app = express();
@@ -75,6 +76,7 @@ app.get('/api/health', async (_req, res) => {
 app.use('/api/checkout', authLimiter, checkoutRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/search', searchRoutes);
+app.use('/api/perfil', perfilRoutes);
 app.use('/api/admin', apiLimiter, adminRoutes);
 
 app.get('*', (_req, res) => {
@@ -83,9 +85,29 @@ app.get('*', (_req, res) => {
 
 app.use(errorHandler);
 
+async function checkMigrations() {
+  try {
+    const { error } = await supabase.from('perfiles').select('avatar_url').limit(1)
+    if (!error || !error.message || !error.message.includes('column')) return
+    logger.warn('Columna avatar_url no existe en perfiles. Ejecuta en Supabase SQL Editor:')
+    logger.warn('  ALTER TABLE public.perfiles ADD COLUMN IF NOT EXISTS avatar_url text;')
+    logger.warn('Creando bucket avatars si no existe...')
+    const { data: buckets } = await supabase.storage.listBuckets()
+    if (!buckets?.find(b => b.name === 'avatars')) {
+      await supabase.storage.createBucket('avatars', { public: true })
+      logger.info('Bucket avatars creado')
+    }
+  } catch (e) {
+    if (e.message?.includes('column')) {
+      logger.warn('Ejecuta en Supabase SQL Editor: ALTER TABLE public.perfiles ADD COLUMN IF NOT EXISTS avatar_url text;')
+    }
+  }
+}
+
 if (require.main === module) {
   app.listen(PORT, () => {
     logger.info(`Servidor corriendo en puerto ${PORT}`);
+    checkMigrations()
   });
 }
 

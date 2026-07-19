@@ -1,6 +1,7 @@
 import store from '../store.js'
 import supabase from '../services/supabase.service.js'
-import { showToast, formatDate } from '../utils.js'
+import CONFIG from '../config.js'
+import { showToast, formatDate, placeholderImg } from '../utils.js'
 import { misPedidos } from '../services/pedidos.service.js'
 
 function initials(name) {
@@ -10,6 +11,8 @@ function initials(name) {
 export default function render() {
   const usuario = store.usuario || {}
   const sesion = store.sesion
+  const avatarUrl = usuario.avatar_url || ''
+  const tieneAvatar = !!avatarUrl
 
   if (!sesion) {
     return `
@@ -23,8 +26,17 @@ export default function render() {
     <div class="section" style="padding-top:calc(var(--nav-height) + var(--space-lg))">
       <div class="container" style="max-width:800px">
         <div class="profile-header" style="display:flex;align-items:center;gap:var(--space-lg);margin-bottom:var(--space-2xl);flex-wrap:wrap">
-          <div style="width:72px;height:72px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;flex-shrink:0">
-            <span style="font-size:var(--text-subhead);font-weight:var(--weight-semibold);color:#fff">${initials(usuario.nombre_completo)}</span>
+          <div style="position:relative;width:80px;height:80px;flex-shrink:0" id="avatar-container">
+            <div id="avatar-display" style="width:80px;height:80px;border-radius:50%;overflow:hidden;background:var(--accent);display:flex;align-items:center;justify-content:center">
+              ${tieneAvatar
+                ? `<img src="${avatarUrl}" alt="Avatar" style="width:100%;height:100%;object-fit:cover" />`
+                : `<span style="font-size:var(--text-subhead);font-weight:var(--weight-semibold);color:#fff">${initials(usuario.nombre_completo)}</span>`
+              }
+            </div>
+            <label for="avatar-input" style="position:absolute;bottom:0;right:0;width:28px;height:28px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;cursor:pointer;border:2px solid var(--bg-primary);transition:opacity var(--duration-fast) var(--ease-smooth);opacity:0.9" id="avatar-edit-btn">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round"><path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>
+            </label>
+            <input type="file" id="avatar-input" accept="image/*" style="display:none" />
           </div>
           <div style="flex:1">
             <h1 class="headline-display" style="margin:0">${usuario.nombre_completo || 'Usuario'}</h1>
@@ -97,6 +109,45 @@ export async function afterRender() {
     cargarStatsPedidos(),
     cargarPedidos(),
   ])
+
+  const avatarInput = document.getElementById('avatar-input')
+  avatarInput?.addEventListener('change', async (e) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    const formData = new FormData()
+    formData.append('avatar', file)
+
+    const token = store.sesion?.access_token
+    if (!token) return
+
+    const editBtn = document.getElementById('avatar-edit-btn')
+    if (editBtn) editBtn.style.opacity = '0.5'
+
+    try {
+      const res = await fetch(`${CONFIG.API_BASE_URL}/api/perfil/avatar`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` },
+        body: formData,
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Error al subir avatar')
+
+      store.usuario = { ...store.usuario, avatar_url: data.avatar_url }
+
+      const display = document.getElementById('avatar-display')
+      if (display) {
+        display.innerHTML = `<img src="${data.avatar_url}" alt="Avatar" style="width:100%;height:100%;object-fit:cover" />`
+      }
+
+      showToast('Avatar actualizado', 'success')
+    } catch (err) {
+      showToast(err.message, 'error')
+    } finally {
+      if (editBtn) editBtn.style.opacity = '0.9'
+      avatarInput.value = ''
+    }
+  })
 
   const form = document.getElementById('perfil-form')
   const submitBtn = document.getElementById('perfil-submit')

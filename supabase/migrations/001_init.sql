@@ -32,7 +32,8 @@ alter table public.productos
 -- 2.3 PERFILES
 alter table public.perfiles
   add column if not exists created_at timestamptz default now(),
-  add column if not exists updated_at timestamptz default now();
+  add column if not exists updated_at timestamptz default now(),
+  add column if not exists avatar_url text;
 
 -- 2.4 PEDIDOS
 alter table public.pedidos
