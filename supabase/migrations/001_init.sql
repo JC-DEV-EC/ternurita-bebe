@@ -301,7 +301,32 @@ create index if not exists idx_detalles_pedido       on public.detalles_pedido(p
 create index if not exists idx_imagenes_producto     on public.imagenes(producto_id);
 
 -- ============================================================
--- 8. SEED DATA (solo si las tablas estan vacias)
+-- 8. STORAGE: Bucket "productos" policies
+-- ============================================================
+
+insert into storage.buckets (id, name, public)
+select 'productos', 'productos', true
+where not exists (select 1 from storage.buckets where id = 'productos');
+
+drop policy if exists "Productos storage public select" on storage.objects;
+create policy "Productos storage public select"
+  on storage.objects for select
+  using (bucket_id = 'productos');
+
+drop policy if exists "Productos storage admin all" on storage.objects;
+create policy "Productos storage admin all"
+  on storage.objects for all
+  using (
+    bucket_id = 'productos'
+    and public.get_user_role() = 'admin'
+  )
+  with check (
+    bucket_id = 'productos'
+    and public.get_user_role() = 'admin'
+  );
+
+-- ============================================================
+-- 9. SEED DATA (solo si las tablas estan vacias)
 -- ============================================================
 insert into public.categorias (nombre, slug, descripcion)
 select 'Ropa', 'ropa', 'Ropa y accesorios para bebe'

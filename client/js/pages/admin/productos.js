@@ -1,14 +1,16 @@
-import { renderAdminSidebar } from '../../components/AdminSidebar.js'
+import { renderAdminSidebar, setupAdminToggle } from '../../components/AdminSidebar.js'
 import { openModal, cerrarModal } from '../../components/Modal.js'
 import { productos } from '../../services/admin.service.js'
 import { listar as listarCategorias } from '../../services/categorias.service.js'
 import { showToast } from '../../utils.js'
 
 export default function render() {
+  const collapsed = localStorage.getItem('admin-sidebar-collapsed') === 'true'
   return `
     <div class="admin-layout">
       <div id="admin-sidebar"></div>
-      <div class="admin-main">
+      <div class="admin-main ${collapsed ? 'admin-main--expanded' : ''}">
+        <button class="admin-sidebar-toggle ${collapsed ? 'admin-sidebar-toggle--collapsed' : ''}" id="admin-toggle" aria-label="Alternar menú lateral"><i data-lucide="panel-left"></i></button>
         <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:var(--space-md);margin-bottom:var(--space-xl)">
           <div>
             <span class="badge">Admin</span>
@@ -44,6 +46,7 @@ export default function render() {
 export async function afterRender() {
   const sidebar = document.getElementById('admin-sidebar')
   if (sidebar) renderAdminSidebar(sidebar)
+  setupAdminToggle()
 
   await cargarProductos()
 
@@ -72,7 +75,7 @@ async function cargarProductos() {
       <tr style="border-bottom:1px solid var(--border-light);transition:background var(--duration-fast) var(--ease-smooth)">
         <td style="padding:var(--space-sm) var(--space-md)">
           <div style="width:40px;height:40px;border-radius:8px;overflow:hidden;background:var(--bg-secondary)">
-            ${imgUrl ? `<img src="${imgUrl}" alt="" style="width:100%;height:100%;object-fit:cover">` : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:1rem;color:var(--text-tertiary)">📦</div>`}
+            ${imgUrl ? `<img src="${imgUrl}" alt="" style="width:100%;height:100%;object-fit:cover" onerror="this.onerror=null;this.parentElement.innerHTML='📦'">` : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:1rem;color:var(--text-tertiary)">📦</div>`}
           </div>
         </td>
         <td style="padding:var(--space-sm) var(--space-md)">
@@ -86,13 +89,21 @@ async function cargarProductos() {
           <span style="${p.stock_total > 0 ? '' : 'color:#DC2626;font-weight:var(--weight-medium)'}">${p.stock_total || 0}</span>
         </td>
         <td style="padding:var(--space-sm) var(--space-md);color:var(--text-secondary)">${p.categorias?.nombre || '-'}</td>
-        <td style="padding:var(--space-sm) var(--space-md);text-align:right">
-          <button class="btn-editar" style="font-size:var(--text-caption);color:var(--accent);margin-right:var(--space-md);transition:color var(--duration-fast) var(--ease-smooth)" data-id="${p.id}">Editar</button>
-          <button class="btn-eliminar" style="font-size:var(--text-caption);color:#DC2626;transition:color var(--duration-fast) var(--ease-smooth)" data-id="${p.id}">Eliminar</button>
+        <td style="padding:var(--space-sm) var(--space-md);text-align:right;white-space:nowrap">
+          <button class="btn-editar" style="display:inline-flex;align-items:center;gap:4px;font-size:var(--text-caption);color:var(--text-secondary);padding:6px 10px;border-radius:8px;border:1px solid var(--border-light);background:var(--bg-primary);cursor:pointer;transition:all var(--duration-fast) var(--ease-smooth);margin-right:var(--space-xs)" data-id="${p.id}">
+            <i data-lucide="pencil" style="width:14px;height:14px"></i>
+            Editar
+          </button>
+          <button class="btn-eliminar" style="display:inline-flex;align-items:center;gap:4px;font-size:var(--text-caption);color:#DC2626;padding:6px 10px;border-radius:8px;border:1px solid rgba(220,38,38,0.15);background:var(--bg-primary);cursor:pointer;transition:all var(--duration-fast) var(--ease-smooth)" data-id="${p.id}">
+            <i data-lucide="trash-2" style="width:14px;height:14px"></i>
+            Eliminar
+          </button>
         </td>
       </tr>
     `}
-  ).join('')
+    ).join('')
+
+    if (window.lucide?.createIcons) window.lucide.createIcons()
 
     tbody.querySelectorAll('.btn-editar').forEach(btn => {
       btn.addEventListener('mouseenter', () => { btn.style.opacity = '0.7' })
@@ -136,7 +147,7 @@ async function abrirModalProducto(producto) {
       <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(80px,1fr));gap:var(--space-sm);margin-bottom:var(--space-sm)" id="imagenes-grid">
         ${imagenes.map(img => `
           <div style="position:relative;width:100%;aspect-ratio:1;border-radius:8px;overflow:hidden;background:var(--bg-secondary);border:1px solid var(--border-light)" data-img-id="${img.id}">
-            <img src="${img.url}" alt="" style="width:100%;height:100%;object-fit:cover;display:block;cursor:pointer" class="admin-img-preview">
+            <img src="${img.url}" alt="" style="width:100%;height:100%;object-fit:cover;display:block;cursor:pointer" class="admin-img-preview" onerror="this.onerror=null;this.style.display='none'">
             <button type="button" class="btn-del-img" data-img-id="${img.id}" style="position:absolute;top:2px;right:2px;width:20px;height:20px;border-radius:50%;background:rgba(0,0,0,0.5);color:white;font-size:12px;display:flex;align-items:center;justify-content:center;border:none;cursor:pointer;opacity:0;transition:opacity var(--duration-fast)">✕</button>
           </div>
         `).join('')}

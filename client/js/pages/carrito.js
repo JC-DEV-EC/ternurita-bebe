@@ -93,10 +93,11 @@ function renderItemRow(item) {
 
   const precioUnitario = producto.precio_oferta || producto.precio
   const imagen = producto.imagenes?.[0]?.url || placeholderImg(160, 160, 'No')
+  const fallback = placeholderImg(160, 160, 'No')
 
   return `
     <div class="cart-item-row" data-item-id="${item.id}">
-      <img src="${imagen}" alt="${producto.nombre}" class="cart-item-row__img" loading="lazy" />
+      <img src="${imagen}" alt="${producto.nombre}" class="cart-item-row__img" loading="lazy" onerror="this.onerror=null;this.src='${fallback.replace(/'/g, '&#39;')}'" />
       <div class="cart-item-row__info">
         <a href="#/productos/${producto.slug}" class="cart-item-row__name">${producto.nombre}</a>
         <div class="cart-item-row__price">$${precioUnitario.toFixed(2)} c/u</div>
@@ -108,9 +109,7 @@ function renderItemRow(item) {
       </div>
       <div class="cart-item-row__total">$${(precioUnitario * item.cantidad).toFixed(2)}</div>
       <button class="cart-item-row__remove btn-remove-item" title="Eliminar">
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
-          <path d="M2 4h12M5 4V2.5A.5.5 0 0 1 5.5 2h3a.5.5 0 0 1 .5.5V4M12.5 4L12 13a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1L3.5 4"/>
-        </svg>
+        <i data-lucide="trash-2" style="width:16px;height:16px"></i>
       </button>
     </div>
   `

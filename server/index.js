@@ -30,6 +30,7 @@ app.use(helmet({
         'https://cdnjs.cloudflare.com',
         'https://cdn.jsdelivr.net',
       ],
+      scriptSrcAttr: ["'unsafe-inline'"],
       styleSrc: [
         "'self'",
         "'unsafe-inline'",
@@ -39,12 +40,22 @@ app.use(helmet({
         "'self'",
         'https://fssandkzjzplyuluwrbq.supabase.co',
         'https://*.supabase.co',
+        'https://cdn.jsdelivr.net',
       ],
       imgSrc: ["'self'", 'data:', 'https://*.supabase.co', 'https://placehold.co', 'https://placehold.co:443'],
+      frameSrc: ["'self'", 'https://www.openstreetmap.org', 'https://openstreetmap.org', 'https://*.tile.openstreetmap.org'],
       fontSrc: ["'self'", 'https://cdn.tailwindcss.com'],
     },
   },
+  crossOriginOpenerPolicy: false,
+  crossOriginResourcePolicy: false,
+  crossOriginEmbedderPolicy: false,
 }));
+
+app.use((_req, res, next) => {
+  res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=(), payment=(), usb=(), magnetometer=(), accelerometer=(), gyroscope=(), display-capture=(), document-domain=()');
+  next();
+});
 app.use(cors({
   origin: process.env.CORS_ORIGIN || 'http://localhost:8080',
   credentials: true,
@@ -79,6 +90,21 @@ app.use('/api/auth', authRoutes);
 app.use('/api/search', searchRoutes);
 app.use('/api/perfil', perfilRoutes);
 app.use('/api/admin', apiLimiter, adminRoutes);
+
+app.get('/.well-known/security.txt', (_req, res) => {
+  res.type('text/plain').send([
+    'Contact: mailto:seguridad@ternuritabebe.com',
+    'Contact: https://ternuritabebe.com/contacto',
+    'Preferred-Languages: es, en',
+    'Canonical: https://ternuritabebe.com/.well-known/security.txt',
+    'Policy: https://ternuritabebe.com/security-policy',
+    'Encryption: https://ternuritabebe.com/pgp-key.txt',
+    `Expires: ${new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]}`,
+    '',
+    '# Ternurita Bebe - Security Disclosure',
+    '# Please report vulnerabilities to the contacts above.',
+  ].join('\n'));
+});
 
 app.get('*', (_req, res) => {
   res.sendFile(path.join(__dirname, '..', 'client', 'index.html'));

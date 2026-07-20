@@ -2,13 +2,14 @@ import { placeholderImg } from '../utils.js'
 
 export function renderProductCard(producto) {
   const imagen = producto.imagenes?.[0]?.url || placeholderImg(600, 600, 'Sin imagen')
+  const fallback = placeholderImg(600, 600, 'Sin imagen')
   const precioOferta = producto.precio_oferta
   const tieneOferta = precioOferta && precioOferta < producto.precio
 
   return `
     <div class="product-card fade-up">
       <a href="#/productos/${producto.slug || producto.id}" class="product-card__image-wrap">
-        <img src="${imagen}" alt="${producto.nombre}" class="product-card__image" loading="lazy" />
+        <img src="${imagen}" alt="${producto.nombre}" class="product-card__image" loading="lazy" onerror="this.src='${fallback.replace(/'/g, '\\&#39;')}'" />
       </a>
       <div class="product-card__body">
         <h3 class="product-card__name">

@@ -1,32 +1,35 @@
-import { renderAdminSidebar } from '../../components/AdminSidebar.js'
+import { renderAdminSidebar, setupAdminToggle } from '../../components/AdminSidebar.js'
 import { usuarios } from '../../services/admin.service.js'
 import { formatDate, showToast } from '../../utils.js'
 
 export default function render() {
+  const collapsed = localStorage.getItem('admin-sidebar-collapsed') === 'true'
   return `
-    <div class="max-w-7xl mx-auto px-4 py-8 fade-in">
-      <h1 class="text-3xl font-bold text-gray-800 mb-6">Usuarios</h1>
-      <div class="flex flex-col md:flex-row gap-6">
-        <div id="admin-sidebar"></div>
-        <div class="flex-1">
-          <p class="text-gray-500 mb-4" id="usuarios-count">Cargando...</p>
-          <div class="bg-white rounded-xl shadow-md overflow-hidden">
-            <div class="overflow-x-auto">
-              <table class="w-full">
-                <thead class="bg-gray-50">
-                  <tr>
-                    <th class="text-left px-4 py-3 text-sm font-medium text-gray-500">Nombre</th>
-                    <th class="text-left px-4 py-3 text-sm font-medium text-gray-500">Email</th>
-                    <th class="text-left px-4 py-3 text-sm font-medium text-gray-500">Rol</th>
-                    <th class="text-left px-4 py-3 text-sm font-medium text-gray-500">Registro</th>
-                    <th class="text-right px-4 py-3 text-sm font-medium text-gray-500">Acciones</th>
-                  </tr>
-                </thead>
-                <tbody id="usuarios-table-body">
-                  <tr><td colspan="5" class="text-center py-8 text-gray-400">Cargando...</td></tr>
-                </tbody>
-              </table>
-            </div>
+    <div class="admin-layout">
+      <div id="admin-sidebar"></div>
+      <div class="admin-main ${collapsed ? 'admin-main--expanded' : ''}">
+        <button class="admin-sidebar-toggle ${collapsed ? 'admin-sidebar-toggle--collapsed' : ''}" id="admin-toggle" aria-label="Alternar menú lateral"><i data-lucide="panel-left"></i></button>
+        <div style="margin-bottom:var(--space-xl)">
+          <span class="badge">Admin</span>
+          <h1 class="headline-display">Usuarios</h1>
+        </div>
+        <p style="font-size:var(--text-caption);color:var(--text-secondary);margin-bottom:var(--space-md)" id="usuarios-count">Cargando...</p>
+        <div style="background:var(--bg-primary);border:1px solid var(--border-light);border-radius:18px;overflow:hidden">
+          <div style="overflow-x:auto">
+            <table style="width:100%;border-collapse:collapse">
+              <thead>
+                <tr style="border-bottom:1px solid var(--border-light)">
+                  <th style="text-align:left;padding:var(--space-sm) var(--space-md);font-size:var(--text-small);font-weight:var(--weight-semibold);text-transform:uppercase;letter-spacing:var(--tracking-wide);color:var(--text-tertiary)">Nombre</th>
+                  <th style="text-align:left;padding:var(--space-sm) var(--space-md);font-size:var(--text-small);font-weight:var(--weight-semibold);text-transform:uppercase;letter-spacing:var(--tracking-wide);color:var(--text-tertiary)">Email</th>
+                  <th style="text-align:left;padding:var(--space-sm) var(--space-md);font-size:var(--text-small);font-weight:var(--weight-semibold);text-transform:uppercase;letter-spacing:var(--tracking-wide);color:var(--text-tertiary)">Rol</th>
+                  <th style="text-align:left;padding:var(--space-sm) var(--space-md);font-size:var(--text-small);font-weight:var(--weight-semibold);text-transform:uppercase;letter-spacing:var(--tracking-wide);color:var(--text-tertiary)">Registro</th>
+                  <th style="text-align:right;padding:var(--space-sm) var(--space-md);font-size:var(--text-small);font-weight:var(--weight-semibold);text-transform:uppercase;letter-spacing:var(--tracking-wide);color:var(--text-tertiary)">Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="usuarios-table-body">
+                <tr><td colspan="5" style="text-align:center;padding:var(--space-2xl) 0;color:var(--text-tertiary)">Cargando...</td></tr>
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
@@ -37,6 +40,7 @@ export default function render() {
 export async function afterRender() {
   const sidebar = document.getElementById('admin-sidebar')
   if (sidebar) renderAdminSidebar(sidebar)
+  setupAdminToggle()
 
   await cargarUsuarios()
 }
@@ -45,7 +49,7 @@ async function cargarUsuarios() {
   const tbody = document.getElementById('usuarios-table-body')
   if (!tbody) return
 
-  tbody.innerHTML = '<tr><td colspan="5" class="text-center py-8"><div class="spinner mx-auto"></div></td></tr>'
+  tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:var(--space-2xl) 0;color:var(--text-tertiary)"><div class="spinner" style="margin:0 auto"></div></td></tr>'
 
   try {
     const data = await usuarios.listar()
@@ -53,20 +57,20 @@ async function cargarUsuarios() {
     if (count) count.textContent = `${data.length} usuario(s)`
 
     if (!data || data.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="5" class="text-center py-8 text-gray-400">No hay usuarios</td></tr>'
+      tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:var(--space-2xl) 0;color:var(--text-tertiary)">No hay usuarios</td></tr>'
       return
     }
 
     tbody.innerHTML = data.map(u => `
-      <tr class="border-t border-gray-100 hover:bg-gray-50">
-        <td class="px-4 py-3 font-medium text-gray-800">${u.nombre_completo || u.email || '-'}</td>
-        <td class="px-4 py-3 text-gray-600">${u.email || '-'}</td>
-        <td class="px-4 py-3">
+      <tr style="border-bottom:1px solid var(--border-light);transition:background var(--duration-fast) var(--ease-smooth)">
+        <td style="padding:var(--space-sm) var(--space-md);color:var(--text-primary);font-size:var(--text-caption);font-weight:var(--weight-semibold)">${u.nombre_completo || u.email || '-'}</td>
+        <td style="padding:var(--space-sm) var(--space-md);color:var(--text-secondary);font-size:var(--text-caption)">${u.email || '-'}</td>
+        <td style="padding:var(--space-sm) var(--space-md);font-size:var(--text-caption)">
           <span class="badge ${u.rol === 'admin' ? 'badge-primary' : 'badge-warning'}">${u.rol || 'cliente'}</span>
         </td>
-        <td class="px-4 py-3 text-sm text-gray-500">${u.created_at ? formatDate(u.created_at) : '-'}</td>
-        <td class="px-4 py-3 text-right">
-          <select class="select-rol text-sm border border-gray-200 rounded-lg px-2 py-1" data-usuario-id="${u.id}">
+        <td style="padding:var(--space-sm) var(--space-md);color:var(--text-secondary);font-size:var(--text-small)">${u.created_at ? formatDate(u.created_at) : '-'}</td>
+        <td style="padding:var(--space-sm) var(--space-md);text-align:right;font-size:var(--text-caption)">
+          <select class="select-rol" style="font-size:var(--text-small);border:1px solid var(--border-light);border-radius:8px;padding:4px 8px;color:var(--text-primary);background:var(--bg-primary);cursor:pointer" data-usuario-id="${u.id}">
             <option value="cliente" ${u.rol === 'cliente' ? 'selected' : ''}>Cliente</option>
             <option value="admin" ${u.rol === 'admin' ? 'selected' : ''}>Admin</option>
           </select>
@@ -88,6 +92,6 @@ async function cargarUsuarios() {
       })
     })
   } catch (err) {
-    tbody.innerHTML = `<tr><td colspan="5" class="text-center py-8 text-red-400">Error: ${err.message}</td></tr>`
+    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:var(--space-2xl) 0;color:var(--color-error)">Error: ${err.message}</td></tr>`
   }
 }

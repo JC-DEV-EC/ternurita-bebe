@@ -1,6 +1,6 @@
 import { initRouter } from './router.js'
 import { renderNavbar } from './components/Navbar.js'
-import { renderFooter } from './components/Footer.js'
+import { renderFooter } from './components/Footer.js?v=1'
 import { initAuth } from './auth.js'
 
 document.addEventListener('DOMContentLoaded', () => {

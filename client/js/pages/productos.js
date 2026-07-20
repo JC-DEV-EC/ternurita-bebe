@@ -23,20 +23,15 @@ export default function render() {
             <h1 class="headline-display">Productos</h1>
           </div>
           <div style="position:relative;width:100%;max-width:320px">
-            <svg style="position:absolute;left:1rem;top:50%;transform:translateY(-50%);width:16px;height:16px;color:var(--text-tertiary);pointer-events:none" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
-              <circle cx="7" cy="7" r="5.5"/>
-              <path d="M11.5 11.5L15 15"/>
-            </svg>
+            <i data-lucide="search" style="position:absolute;left:1rem;top:50%;transform:translateY(-50%);width:16px;height:16px;color:var(--text-tertiary);pointer-events:none"></i>
             <input type="text" id="input-busqueda" class="input" style="padding-left:2.75rem" placeholder="Buscar productos..." value="${estado.busqueda}">
           </div>
         </div>
 
         <div style="display:grid;grid-template-columns:240px 1fr;gap:var(--space-xl)">
-          <aside style="position:sticky;top:calc(var(--nav-height) + var(--space-md));align-self:start">
-            <div class="card" style="padding:var(--space-lg)">
-              <h3 style="font-size:var(--text-caption);font-weight:var(--weight-semibold);text-transform:uppercase;letter-spacing:var(--tracking-wide);color:var(--text-tertiary);margin-bottom:var(--space-md)">Categorías</h3>
-              <div id="categorias-filtro" class="cat-filter"></div>
-            </div>
+          <aside class="cat-sidebar">
+            <h3 class="cat-sidebar__title">Categorías</h3>
+            <div id="categorias-filtro" class="cat-filter"></div>
           </aside>
 
           <div>
@@ -107,15 +102,15 @@ export async function afterRender() {
 }
 
 const CAT_ICONS = {
-  'prendas-superiores': '👕',
-  'prendas-inferiores': '👖',
-  'mamelucos': '🦺',
-  'exteriores': '🧥',
-  'transporte': '🚼',
-  'higiene': '🧴',
-  'accesorios': '🧢',
-  'juguetes': '🧸',
-  'cuidado': '💚',
+  'prendas-superiores': 'shirt',
+  'prendas-inferiores': 'footprints',
+  'mamelucos': 'baby',
+  'exteriores': 'shirt',
+  'transporte': 'car-front',
+  'higiene': 'droplets',
+  'accesorios': 'hat',
+  'juguetes': 'toy-brick',
+  'cuidado': 'heart',
 }
 
 async function cargarCategoriasFiltro() {
@@ -127,16 +122,20 @@ async function cargarCategoriasFiltro() {
 
   container.innerHTML = `
     <button class="cat-filter__btn ${!estado.categoria ? 'cat-filter__btn--active' : ''}" data-categoria="">
-      <span class="cat-filter__icon">✨</span>
+      <i data-lucide="store" class="cat-filter__icon"></i>
       <span class="cat-filter__label">Todas</span>
     </button>
     ${data.map(cat => `
       <button class="cat-filter__btn ${estado.categoria === cat.slug ? 'cat-filter__btn--active' : ''}" data-categoria="${cat.slug}">
-        <span class="cat-filter__icon">${CAT_ICONS[cat.slug] || '📦'}</span>
+        <i data-lucide="${CAT_ICONS[cat.slug] || 'package'}" class="cat-filter__icon"></i>
         <span class="cat-filter__label">${cat.nombre}</span>
       </button>
     `).join('')}
   `
+
+  if (window.lucide?.createIcons) {
+    window.lucide.createIcons()
+  }
 
   container.querySelectorAll('.cat-filter__btn').forEach(btn => {
     btn.addEventListener('click', () => {

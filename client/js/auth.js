@@ -1,6 +1,5 @@
-import store, { onStoreChange } from './store.js'
+import store from './store.js'
 import {
-  signUp as authSignUp,
   signIn as authSignIn,
   signOut as authSignOut,
   getSession,
@@ -8,6 +7,7 @@ import {
 } from './services/auth.service.js'
 import supabase from './services/supabase.service.js'
 import { showToast } from './utils.js'
+import CONFIG from './config.js'
 
 async function cargarUsuario(userId) {
   const { data, error } = await supabase
@@ -23,62 +23,52 @@ async function cargarUsuario(userId) {
 }
 
 export async function login(email, password) {
-  const log = (step, msg) => {
-    const el = document.getElementById('login-submit')
-    if (el) el.textContent = step + ': ' + msg
-    console.log(step, msg)
-  }
-
-  log('1', 'login called')
-
   const { data, error } = await authSignIn(email, password)
-  log('2', 'signIn done, error=' + (error?.message || 'none'))
 
   if (error) {
-    log('3', 'ERROR: ' + error.message)
     showToast(error.message, 'error')
     return { error }
   }
 
-  log('4', 'user id=' + data.user?.id)
-
   store.sesion = data.session
   await cargarUsuario(data.user.id)
-  log('5', 'perfil loaded, rol=' + (store.usuario?.rol || 'none'))
 
   const esAdmin = store.usuario?.rol === 'admin'
-  log('6', 'redirect to ' + (esAdmin ? '/admin' : '/'))
   window.location.hash = esAdmin ? '#/admin' : '#/'
   showToast('Sesión iniciada correctamente', 'success')
   return { data }
 }
 
 export async function register(nombre, email, password) {
-  const { data, error } = await authSignUp(email, password, nombre)
-  if (error) {
-    showToast(error.message, 'error')
-    return { error }
-  }
+  try {
+    const res = await fetch(`${CONFIG.API_BASE_URL}/api/auth/register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password, nombre }),
+    })
 
-  if (data?.user) {
-    const { error: upsertError } = await supabase.from('perfiles').upsert({
-      id: data.user.id,
-      nombre_completo: nombre,
-      rol: 'cliente',
-    }, { onConflict: 'id' })
+    const data = await res.json()
 
-    if (upsertError) {
-      showToast('Error al crear perfil', 'error')
-      return { error: upsertError }
+    if (!res.ok) {
+      showToast(data.error || 'Error al registrarse', 'error')
+      return { error: data }
     }
 
-    store.sesion = data.session
-    if (data.user) await cargarUsuario(data.user.id)
-  }
+    if (data.session) {
+      store.sesion = data.session
+    }
 
-  showToast('Cuenta creada correctamente', 'success')
-  window.location.hash = '#/'
-  return { data }
+    if (data.user) {
+      await cargarUsuario(data.user.id)
+    }
+
+    showToast('Cuenta creada correctamente', 'success')
+    window.location.hash = '#/'
+    return { data }
+  } catch (err) {
+    showToast('Error de conexión al servidor', 'error')
+    return { error: err }
+  }
 }
 
 export async function logout() {

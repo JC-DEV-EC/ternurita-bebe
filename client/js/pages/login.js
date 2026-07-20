@@ -2,7 +2,7 @@ import { login } from '../auth.js'
 
 export default function render() {
   return `
-    <div class="min-h-[70vh] flex items-center justify-center px-4 py-12 fade-in">
+    <div class="min-h-[70vh] flex items-center justify-center px-4 py-12 fade-in" style="padding-top:calc(var(--nav-height) + var(--space-lg))">
       <div class="bg-white rounded-xl shadow-md p-8 w-full max-w-md">
         <h1 class="text-2xl font-bold text-gray-800 mb-6 text-center">Iniciar sesión</h1>
         <form id="login-form">

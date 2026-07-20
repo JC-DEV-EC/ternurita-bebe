@@ -3,6 +3,21 @@ const { createProductoSchema, updateProductoSchema } = require('../../validators
 const logger = require('../../utils/logger');
 const multer = require('multer');
 
+const IMAGE_SIGNATURES = [
+  [0xFF, 0xD8, 0xFF],
+  [0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A],
+  [0x47, 0x49, 0x46, 0x38],
+  [0x52, 0x49, 0x46, 0x46],
+];
+
+function isValidImageMagicBytes(buffer) {
+  if (!buffer || buffer.length < 12) return false;
+  const header = new Uint8Array(buffer.slice(0, 12));
+  return IMAGE_SIGNATURES.some(sig =>
+    sig.every((byte, i) => header[i] === byte)
+  );
+}
+
 function generarSlug(texto) {
   return texto
     .toLowerCase()
@@ -151,6 +166,10 @@ async function subirImagen(req, res) {
 
     if (!req.file) {
       return res.status(400).json({ error: 'Archivo de imagen requerido' });
+    }
+
+    if (!isValidImageMagicBytes(req.file.buffer)) {
+      return res.status(400).json({ error: 'El archivo no es una imagen válida (JPEG/PNG/GIF/WebP)' })
     }
 
     const ext = req.file.originalname.split('.').pop();

@@ -39,14 +39,15 @@ function renderGallery(producto) {
 
   const imagenes = producto.imagenes || []
   const mainUrl = imagenes[0]?.url || placeholderImg(600, 800, 'Sin imagen')
+  const fallback = placeholderImg(600, 800, 'Sin imagen')
 
-  let html = `<div class="product-detail__main-img"><img src="${mainUrl}" alt="${producto.nombre}" id="main-image" /></div>`
+  let html = `<div class="product-detail__main-img"><img src="${mainUrl}" alt="${producto.nombre}" id="main-image" onerror="this.onerror=null;this.src='${fallback.replace(/'/g, '&#39;')}'" /></div>`
 
   if (imagenes.length > 1) {
     html += `<div class="product-detail__thumbs">`
     imagenes.forEach((img, i) => {
       html += `<button class="product-detail__thumb ${i === 0 ? 'is-active' : ''}" data-src="${img.url}">
-        <img src="${img.url}" alt="" />
+        <img src="${img.url}" alt="" onerror="this.onerror=null;this.src='${fallback.replace(/'/g, '&#39;')}'" />
       </button>`
     })
     html += `</div>`

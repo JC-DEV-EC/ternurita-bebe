@@ -34,7 +34,7 @@ export default function render() {
               }
             </div>
             <label for="avatar-input" style="position:absolute;bottom:0;right:0;width:28px;height:28px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;cursor:pointer;border:2px solid var(--bg-primary);transition:opacity var(--duration-fast) var(--ease-smooth);opacity:0.9" id="avatar-edit-btn">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round"><path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>
+              <i data-lucide="pen" style="width:12px;height:12px;color:white;stroke-width:3"></i>
             </label>
             <input type="file" id="avatar-input" accept="image/*" style="display:none" />
           </div>

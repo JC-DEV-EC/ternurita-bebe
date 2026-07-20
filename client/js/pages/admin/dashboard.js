@@ -1,11 +1,13 @@
-import { renderAdminSidebar } from '../../components/AdminSidebar.js'
+import { renderAdminSidebar, setupAdminToggle } from '../../components/AdminSidebar.js'
 import { productos, pedidos } from '../../services/admin.service.js'
 
 export default function render() {
+  const collapsed = localStorage.getItem('admin-sidebar-collapsed') === 'true'
   return `
     <div class="admin-layout">
       <div id="admin-sidebar"></div>
-      <div class="admin-main">
+      <div class="admin-main ${collapsed ? 'admin-main--expanded' : ''}">
+        <button class="admin-sidebar-toggle ${collapsed ? 'admin-sidebar-toggle--collapsed' : ''}" id="admin-toggle" aria-label="Alternar menú lateral"><i data-lucide="panel-left"></i></button>
         <div style="margin-bottom:var(--space-xl)">
           <span class="badge">Admin</span>
           <h1 class="headline-display">Dashboard</h1>
@@ -36,6 +38,7 @@ export default function render() {
 export async function afterRender() {
   const sidebar = document.getElementById('admin-sidebar')
   if (sidebar) renderAdminSidebar(sidebar)
+  setupAdminToggle()
 
   await Promise.all([
     cargarStatsProductos(),

@@ -67,6 +67,7 @@ function cambiarImagen(index) {
   next.className = 'sticky-scroll__img'
   next.id = 'sticky-img'
   next.style.opacity = '0'
+  next.onerror = function() { this.onerror = null; this.src = placeholderImg(480, 640, 'Producto') }
   wrap.appendChild(next)
 
   if (current) {

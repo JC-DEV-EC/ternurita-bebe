@@ -12,6 +12,8 @@ const pages = {
   perfil:          () => import('./pages/perfil.js'),
   pedidos:         () => import('./pages/pedidos.js'),
   'pedido-detalle': () => import('./pages/pedido-detalle.js'),
+  nosotros:         () => import('./pages/nosotros.js'),
+  contacto:         () => import('./pages/contacto.js'),
   admin:           () => import('./pages/admin/dashboard.js'),
   'admin/productos': () => import('./pages/admin/productos.js'),
   'admin/pedidos':   () => import('./pages/admin/pedidos.js'),
@@ -29,6 +31,8 @@ const routes = [
   { pattern: '/perfil',        page: 'perfil',         auth: true },
   { pattern: '/pedidos',       page: 'pedidos',        auth: true },
   { pattern: '/pedidos/:id',   page: 'pedido-detalle',  auth: true },
+  { pattern: '/nosotros',      page: 'nosotros',        auth: false },
+  { pattern: '/contacto',      page: 'contacto',        auth: false },
   { pattern: '/admin',         page: 'admin',          auth: 'admin' },
   { pattern: '/admin/productos', page: 'admin/productos', auth: 'admin' },
   { pattern: '/admin/pedidos',   page: 'admin/pedidos',   auth: 'admin' },
@@ -60,12 +64,14 @@ function render404() {
 }
 
 function matchRoute(hash) {
-  const cleanHash = hash.replace(/^#/, '') || '/'
+  const [pathPart, searchPart] = hash.replace(/^#/, '').split('?')
+  const cleanPath = pathPart || '/'
+  const query = Object.fromEntries(new URLSearchParams(searchPart || ''))
 
   for (const route of routes) {
-    const params = getParamsFromPath(route.pattern, cleanHash)
+    const params = getParamsFromPath(route.pattern, cleanPath)
     if (params !== null) {
-      return { ...route, params }
+      return { ...route, params: { ...params, ...query } }
     }
   }
   return null
@@ -98,8 +104,14 @@ export function initRouter() {
     } else if (result instanceof HTMLElement) {
       app.appendChild(result)
     }
+    if (window.lucide?.createIcons) {
+      window.lucide.createIcons()
+    }
     if (mod.afterRender) {
-      mod.afterRender(matched.params)
+      await mod.afterRender(matched.params)
+      if (window.lucide?.createIcons) {
+        window.lucide.createIcons()
+      }
     }
   }
 

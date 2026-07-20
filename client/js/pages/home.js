@@ -28,22 +28,54 @@ export default function render() {
 
     <section class="section" id="features-section">
       <div class="container">
+        <div style="text-align:center;max-width:560px;margin:0 auto var(--space-2xl)">
+          <span class="badge">Por qué Ternurita</span>
+          <h2 class="headline-display" style="margin-bottom:var(--space-sm)">Cuidado en cada detalle</h2>
+          <p style="font-size:var(--text-body);color:var(--text-secondary);line-height:var(--leading-body)">Pensado para la piel más delicada, hecho con amor para acompañar los primeros meses.</p>
+        </div>
         <div class="features-grid stagger-children" id="features-grid">
-          <div>
-            <div class="features-grid__icon"><img src="assets/icons/icon-nature2.svg" style="width:28px;"></div>
-            <h3 class="features-grid__title">Materiales naturales</h3>
-            <p class="features-grid__desc">Algodón orgánico certificado, libre de químicos y pesticidas.</p>
-          </div>
-          <div>
-            <div class="features-grid__icon"><img src="assets/icons/icon-hands.svg" style="width:30px;"></div>
-            <h3 class="features-grid__title">Hecho a mano</h3>
-            <p class="features-grid__desc">Cada prenda es elaborada por artesanos locales con dedicación.</p>
-          </div>
-          <div>
-            <div class="features-grid__icon"><img src="assets/icons/icon-transport.svg" style="width:40px;"></div>
-            <h3 class="features-grid__title">Envío seguro</h3>
-            <p class="features-grid__desc">Empaquetado cuidadosamente para que llegue perfecto a tu hogar.</p>
-          </div>
+          <article class="feature-card">
+            <div class="feature-card__header">
+              <div class="feature-card__icon">
+                <i data-lucide="leaf"></i>
+              </div>
+            </div>
+            <h3 class="feature-card__title">Materiales naturales</h3>
+            <p class="feature-card__desc">Algodón orgánico certificado, libre de químicos y pesticidas.</p>
+            <ul class="feature-card__tags">
+              <li>Algodón GOTS</li>
+              <li>Sin tóxicos</li>
+              <li>Hipoalergénico</li>
+            </ul>
+          </article>
+          <article class="feature-card">
+            <div class="feature-card__header">
+              <div class="feature-card__icon">
+                <i data-lucide="hand-heart"></i>
+              </div>
+            </div>
+            <h3 class="feature-card__title">Hecho a mano</h3>
+            <p class="feature-card__desc">Cada prenda es elaborada por artesanos locales con dedicación.</p>
+            <ul class="feature-card__tags">
+              <li>Artesanos EC</li>
+              <li>Edición limitada</li>
+              <li>Único</li>
+            </ul>
+          </article>
+          <article class="feature-card">
+            <div class="feature-card__header">
+              <div class="feature-card__icon">
+                <i data-lucide="package-check"></i>
+              </div>
+            </div>
+            <h3 class="feature-card__title">Envío seguro</h3>
+            <p class="feature-card__desc">Empaquetado cuidadosamente para que llegue perfecto a tu hogar.</p>
+            <ul class="feature-card__tags">
+              <li>Seguro</li>
+              <li>Rastreado</li>
+              <li>Cuidado</li>
+            </ul>
+          </article>
         </div>
       </div>
     </section>
@@ -136,19 +168,32 @@ async function cargarDestacados() {
 }
 
 
-const galeriaItems = [
-  { nombre: 'Bodies de algodón', slug: 'bodies-algodon', wide: true, bg: '#F5E6E6', fg: '#E8A0A0', imagen: 'Assets/images/img-categoria-exterior.png'},
-  { nombre: 'Gorritos', slug: 'gorritos', wide: false, bg: '#E8F4F0', fg: '#7EC8A0', imagen: 'Assets/images/img-categoria-higiene.png' },
-  { nombre: 'Calcetines y medias', slug: 'calcetines', wide: false, bg: '#FFF0E6', fg: '#E8A080', imagen: 'Assets/images/img-categoria-mameluco.png'},
-  { nombre: 'Sets de regalo', slug: 'sets-regalo', wide: false, bg: '#F0E8FF', fg: '#A080E8', imagen: 'Assets/images/img-categoria-prendas-superiores.png'},
-  { nombre: 'Toallas y accesorios', slug: 'toallas', wide: false, bg: '#FFF8E6', fg: '#E8C880', imagen: 'Assets/images/img-categoria-prenda-inferior.png'},
-]
-
-function cargarGaleria() {
+async function cargarGaleria() {
   const grid = document.getElementById('gallery-grid')
   if (!grid) return
 
-  grid.innerHTML = galeriaItems.map((item, i) => {
+  const imagenesCategoria = {
+    'prendas-superiores': 'Assets/images/img-categoria-prendas-superiores.png',
+    'prendas-inferiores': 'Assets/images/img-categoria-prenda-inferior.png',
+    'mamelucos': 'Assets/images/img-categoria-mameluco.png',
+    'exteriores': 'Assets/images/img-categoria-exterior.png',
+    'transporte': 'Assets/images/img-categoria-transporte.png',
+    'higiene': 'Assets/images/img-categoria-higiene.png',
+    'accesorios': 'Assets/images/img-categoria-accesorios.png',
+    'cuidado': 'Assets/images/img-categoria-cuidado.png',
+  }
+
+  const { data: categorias } = await import('../services/categorias.service.js').then(m => m.listar())
+  const cats = (categorias || []).slice(0, 5).map((cat, i) => ({
+    nombre: cat.nombre,
+    slug: cat.slug,
+    wide: i === 0,
+    imagen: imagenesCategoria[cat.slug] || null,
+    bg: ['#F5E6E6', '#E8F4F0', '#FFF0E6', '#F0E8FF', '#FFF8E6'][i],
+    fg: ['#E8A0A0', '#7EC8A0', '#E8A080', '#A080E8', '#E8C880'][i],
+  }))
+
+  grid.innerHTML = cats.map(item => {
     const wide = item.wide ? 'gallery-grid__item--wide' : ''
     return `
       <a href="#/productos?categoria=${item.slug}" class="gallery-grid__item ${wide}">
