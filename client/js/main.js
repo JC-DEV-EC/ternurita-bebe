@@ -13,3 +13,8 @@ document.addEventListener('DOMContentLoaded', () => {
   initAuth()
   initRouter()
 })
+
+export function hideSplash() {
+  const splash = document.getElementById('splash')
+  if (splash) splash.classList.add('is-hidden')
+}

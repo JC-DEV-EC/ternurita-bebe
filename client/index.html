@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://cdn.jsdelivr.net">
   <link rel="preconnect" href="https://cdnjs.cloudflare.com">
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="js/vendor/supabase.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/components.css">
   <script>console.log('0. HTML inline script OK')</script>
@@ -16,6 +16,17 @@
   <script type="module" src="js/main.js?v=3"></script>
 </head>
 <body class="bg-gray-50 text-gray-800 min-h-screen flex flex-col">
+  <div id="splash">
+    <div class="splash__content">
+      <img src="assets/images/img-logo/img-logo.jpeg" alt="Ternurita Bebé" class="splash__logo" />
+      <div class="splash__brand">Ternurita Bebé</div>
+      <div class="splash__dots">
+        <span class="splash__dot"></span>
+        <span class="splash__dot"></span>
+        <span class="splash__dot"></span>
+      </div>
+    </div>
+  </div>
   <div id="navbar"></div>
   <main id="app" class="flex-1"></main>
   <div id="footer"></div>

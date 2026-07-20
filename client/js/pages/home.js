@@ -30,17 +30,17 @@ export default function render() {
       <div class="container">
         <div class="features-grid stagger-children" id="features-grid">
           <div>
-            <div class="features-grid__icon">🌿</div>
+            <div class="features-grid__icon"><img src="assets/icons/icon-nature2.svg" style="width:28px;"></div>
             <h3 class="features-grid__title">Materiales naturales</h3>
             <p class="features-grid__desc">Algodón orgánico certificado, libre de químicos y pesticidas.</p>
           </div>
           <div>
-            <div class="features-grid__icon">🤲</div>
+            <div class="features-grid__icon"><img src="assets/icons/icon-hands.svg" style="width:30px;"></div>
             <h3 class="features-grid__title">Hecho a mano</h3>
             <p class="features-grid__desc">Cada prenda es elaborada por artesanos locales con dedicación.</p>
           </div>
           <div>
-            <div class="features-grid__icon">📦</div>
+            <div class="features-grid__icon"><img src="assets/icons/icon-transport.svg" style="width:40px;"></div>
             <h3 class="features-grid__title">Envío seguro</h3>
             <p class="features-grid__desc">Empaquetado cuidadosamente para que llegue perfecto a tu hogar.</p>
           </div>

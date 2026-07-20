@@ -28,6 +28,7 @@ app.use(helmet({
         'https://cdn.tailwindcss.com',
         'https://esm.sh',
         'https://cdnjs.cloudflare.com',
+        'https://cdn.jsdelivr.net',
       ],
       styleSrc: [
         "'self'",

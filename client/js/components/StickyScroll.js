@@ -10,19 +10,20 @@ export function renderStickyScroll(panels) {
   const defaultPanels = [
     {
       step: '01',
-      title: 'Algodón orgánico',
-      desc: 'Tejido certificado GOTS, libre de químicos. Suave como una caricia en la piel de tu bebé.',
+      title: 'Calidad Certificada',
+      desc: 'Prendas confeccionadas principalmente en algodón, hipoalergénicas y suaves al tacto',
     },
     {
       step: '02',
-      title: 'Sin etiquetas',
-      desc: 'Cada costura está pensada para no rozar la piel sensible. Etiquetas térmicas, no cosidas.',
+      title: 'Variedad Completa',
+      desc: 'Ropa, calzado, cobijas y accesorios esenciales para el hogar de tu pequeño',
     },
     {
       step: '03',
-      title: 'Hecho con ternura',
-      desc: 'Producido en talleres familiares. Cada prenda cuenta una historia de dedicación y amor.',
+      title: 'Atención Especializada',
+      desc: 'Asesoría directa y compras seguras con envíos coordinados de forma eficiente.<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>',
     },
+    
   ]
 
   const items = panels || defaultPanels
@@ -30,11 +31,13 @@ export function renderStickyScroll(panels) {
   return `
     <section class="sticky-scroll" id="sticky-scroll">
       <div class="sticky-scroll__media">
-        <img src="${placeholderImg(480, 640, 'Producto', '#F5E6E6', '#E8A0A0')}"
-             alt="Producto destacado"
-             class="sticky-scroll__img"
-             id="sticky-img"
-             loading="lazy" />
+        <div class="sticky-scroll__img-wrap" id="sticky-img-wrap">
+          <img src="${placeholderImg(480, 640, 'Producto', '#faf9f900', '#e8a0a000')}"
+               alt="Producto destacado"
+               class="sticky-scroll__img"
+               id="sticky-img"
+               loading="lazy" />
+        </div>
       </div>
       <div class="sticky-scroll__content" id="sticky-panels">
         ${items.map((p, i) => `
@@ -50,10 +53,35 @@ export function renderStickyScroll(panels) {
 }
 
 function cambiarImagen(index) {
-  const img = document.getElementById('sticky-img')
-  if (!img) return
   const src = stickScrollImages[index]
-  if (src) img.src = src
+  if (!src) return
+
+  const wrap = document.getElementById('sticky-img-wrap')
+  const current = document.getElementById('sticky-img')
+  if (!wrap) return
+  if (current && current.src === src) return
+
+  const next = document.createElement('img')
+  next.src = src
+  next.alt = 'Producto destacado'
+  next.className = 'sticky-scroll__img'
+  next.id = 'sticky-img'
+  next.style.opacity = '0'
+  wrap.appendChild(next)
+
+  if (current) {
+    gsap.to(current, {
+      opacity: 0,
+      duration: 0.6,
+      ease: 'power2.inOut',
+      onComplete: () => current.remove()
+    })
+  }
+  gsap.to(next, {
+    opacity: 1,
+    duration: 0.6,
+    ease: 'power2.inOut',
+  })
 }
 
 export function initStickyScroll() {

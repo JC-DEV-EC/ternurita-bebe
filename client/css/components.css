@@ -515,12 +515,21 @@
   background: var(--bg-tertiary);
 }
 
-.sticky-scroll__img {
-  width: 75%;
-  max-width: 480px;
-  height: auto;
-  object-fit: contain;
-  will-change: transform;
+.sticky-scroll__img-wrap {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sticky-scroll__img-wrap .sticky-scroll__img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  will-change: opacity;
 }
 
 .sticky-scroll__content {

@@ -110,4 +110,9 @@ export function initRouter() {
   } else {
     resolve()
   }
+
+  setTimeout(() => {
+    const splash = document.getElementById('splash')
+    if (splash) splash.classList.add('is-hidden')
+  }, 1800)
 }

@@ -4,9 +4,9 @@ export function renderHero({ title, subtitle, badge, ctaText, ctaLink }) {
       <div class="hero__bg" id="hero-bg"></div>
       <div class="hero__overlay"></div>
       <div class="hero__content">
-        ${badge ? `<span class="hero__badge">${badge}</span>` : ''}
+        ${badge ? `<span class="hero__badge">${"Ropa de bebé"}</span>` : ''}
         <h1 class="hero__title">${title || 'Suavidad que abraza'}</h1>
-        <p class="hero__subtitle">${subtitle || 'Ropa y accesorios para bebés, hechos con amor y los mejores materiales.'}</p>
+        <p class="hero__subtitle">${'Desde sus primeros días hasta sus primeros pasos, te acompañamos con estilo y amor.'}</p>
         <div class="hero__cta">
           <a href="${ctaLink || '#/productos'}" class="btn btn--primary btn--large">${ctaText || 'Ver colección'}</a>
         </div>
