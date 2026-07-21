@@ -13,7 +13,7 @@ export function renderNavbar(container) {
       <div class="navbar__inner">
         <div></div>
         <div class="navbar__left">
-          <a href="#/" class="navbar__brand">
+          <a href="#" class="navbar__brand">
             <img src="assets/images/img-logo/logo-page.png" alt="Ternurita Bebé">
             <span class="navbar__brand-text">Ternurita Bebé</span>
           </a>

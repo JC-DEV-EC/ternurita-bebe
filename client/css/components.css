@@ -377,6 +377,7 @@
 
 /* ─── Footer ─── */
 .footer {
+  background-color: transparent;
   position: relative;
   padding: 0 0 var(--space-lg);
 }

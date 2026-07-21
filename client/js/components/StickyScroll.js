@@ -2,8 +2,8 @@ import { placeholderImg } from '../utils.js'
 
 const stickScrollImages = [
   'assets/images/img-stikScroll/img1.png',
-  'assets/images/img-stikScroll/img2.png',
-  'assets/images/img-stikScroll/img3.png',
+  'assets/images/img-stikScroll/variedad.jpeg',
+  'assets/images/img-stikScroll/atencion.png',
 ]
 
 export function renderStickyScroll(panels) {
@@ -21,7 +21,7 @@ export function renderStickyScroll(panels) {
     {
       step: '03',
       title: 'Atención Especializada',
-      desc: 'Asesoría directa y compras seguras con envíos coordinados de forma eficiente.<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>',
+      desc: 'Asesoría directa y compras seguras con envíos coordinados de forma eficiente.<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>',
     },
     
   ]
