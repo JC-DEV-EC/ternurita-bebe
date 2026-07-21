@@ -20,12 +20,23 @@ export function renderAdminSidebar(container) {
           </a>
         `).join('')}
       </div>
+      <div class="admin-sidebar__footer">
+        <button class="admin-sidebar__link" id="btn-admin-logout" style="width:100%;border:none;background:none;cursor:pointer;font-family:inherit;font-size:inherit;text-align:left">
+          <i data-lucide="log-out" class="admin-sidebar__icon"></i>
+          <span class="admin-sidebar__label">Salir</span>
+        </button>
+      </div>
     </nav>
   `
 
   if (window.lucide?.createIcons) {
     window.lucide.createIcons()
   }
+
+  container.querySelector('#btn-admin-logout')?.addEventListener('click', async () => {
+    const { logout } = await import('../auth.js')
+    await logout()
+  })
 }
 
 export function setupAdminToggle() {

@@ -72,6 +72,8 @@ export async function register(nombre, email, password) {
 }
 
 export async function logout() {
+  const confirmed = await confirmLogout()
+  if (!confirmed) return
   await authSignOut()
   store.sesion = null
   store.usuario = null
@@ -79,6 +81,35 @@ export async function logout() {
   store.carritoCount = 0
   showToast('Sesión cerrada', 'info')
   window.location.hash = '#/'
+}
+
+function confirmLogout() {
+  return new Promise(resolve => {
+    const overlay = document.createElement('div')
+    overlay.className = 'modal-backdrop'
+    overlay.innerHTML = `
+      <div class="modal" style="max-width:400px;text-align:center">
+        <div class="modal__header" style="border:none;padding-bottom:0">
+          <h2 class="modal__title">Cerrar sesión</h2>
+        </div>
+        <p style="color:var(--text-secondary);margin:var(--space-md) 0 var(--space-lg)">
+          ¿Estás seguro de que quieres cerrar sesión?
+        </p>
+        <div style="display:flex;gap:var(--space-xs);justify-content:center">
+          <button class="btn btn--secondary" id="btn-cancel-logout">Cancelar</button>
+          <button class="btn btn--primary" id="btn-confirm-logout">Cerrar sesión</button>
+        </div>
+      </div>
+    `
+    document.body.appendChild(overlay)
+
+    const cleanup = () => { overlay.remove(); resolve(false) }
+    overlay.querySelector('#btn-cancel-logout')?.addEventListener('click', cleanup)
+    overlay.querySelector('#btn-confirm-logout')?.addEventListener('click', () => {
+      overlay.remove(); resolve(true)
+    })
+    overlay.addEventListener('click', e => { if (e.target === overlay) cleanup() })
+  })
 }
 
 export function isAdmin() {

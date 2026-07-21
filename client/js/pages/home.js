@@ -85,7 +85,7 @@ export default function render() {
         <span class="badge">Destacados</span>
         <h2 class="headline-display" style="margin-bottom:var(--space-lg)">Los más queridos</h2>
         <div style="position:relative">
-          <button class="scroll-arrow scroll-arrow--left" id="scroll-left" aria-label="Anterior">‹</button>
+          <button style="margin-button:15px;" class="scroll-arrow scroll-arrow--left" id="scroll-left" aria-label="Anterior">‹</button>
           <div class="destacados-scroll" id="destacados-container"></div>
           <button class="scroll-arrow scroll-arrow--right" id="scroll-right" aria-label="Siguiente">›</button>
         </div>

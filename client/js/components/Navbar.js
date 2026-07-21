@@ -21,7 +21,7 @@ export function renderNavbar(container) {
           <a href="#/" class="navbar__link" data-route="/">Inicio</a>
           <a href="#/productos" class="navbar__link" data-route="/productos">Productos</a>
           ${isLoggedIn
-            ? `<a href="#/pedidos" class="navbar__link" data-route="/pedidos">Mis pedidos</a>
+            ? `<a href="#/pedidos" class="navbar__link" data-route="/pedidos">Pedidos</a>
                <a href="#/perfil" class="navbar__link" data-route="/perfil">Perfil</a>`
             : `<a href="#/login" class="navbar__link" data-route="/login">Entrar</a>`
           }
