@@ -14,10 +14,10 @@ const pages = {
   'pedido-detalle': () => import('./pages/pedido-detalle.js'),
   nosotros:         () => import('./pages/nosotros.js'),
   contacto:         () => import('./pages/contacto.js'),
-  admin:           () => import('./pages/admin/dashboard.js'),
-  'admin/productos': () => import('./pages/admin/productos.js'),
-  'admin/pedidos':   () => import('./pages/admin/pedidos.js'),
-  'admin/usuarios':  () => import('./pages/admin/usuarios.js'),
+  admin:           () => import('./pages/admin/dashboard.js?v=4'),
+  'admin/productos': () => import('./pages/admin/productos.js?v=4'),
+  'admin/pedidos':   () => import('./pages/admin/pedidos.js?v=4'),
+  'admin/usuarios':  () => import('./pages/admin/usuarios.js?v=4'),
 }
 
 const routes = [

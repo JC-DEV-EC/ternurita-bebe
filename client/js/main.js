@@ -1,7 +1,7 @@
-import { initRouter } from './router.js'
-import { renderNavbar } from './components/Navbar.js'
-import { renderFooter } from './components/Footer.js?v=1'
-import { initAuth } from './auth.js'
+import { initRouter } from './router.js?v=4'
+import { renderNavbar } from './components/Navbar.js?v=2'
+import { renderFooter } from './components/Footer.js?v=2'
+import { initAuth } from './auth.js?v=2'
 
 document.addEventListener('DOMContentLoaded', () => {
   const navbarContainer = document.getElementById('navbar')

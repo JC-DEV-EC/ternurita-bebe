@@ -59,3 +59,7 @@ export const usuarios = {
   listar: () => listarWrapper('/api/admin/usuarios'),
   cambiarRol: (id, rol) => request('PUT', `/api/admin/usuarios/${id}/rol`, { rol }),
 }
+
+export const estadisticas = {
+  obtener: () => request('GET', '/api/admin/'),
+}

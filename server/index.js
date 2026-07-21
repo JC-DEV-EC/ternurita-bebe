@@ -66,9 +66,7 @@ app.use(globalLimiter);
 
 app.use(express.static(path.join(__dirname, '..', 'client'), {
   setHeaders: (res, path) => {
-    if (process.env.NODE_ENV === 'development') {
-      res.set('Cache-Control', 'no-store, no-cache, must-revalidate');
-    }
+    res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
   },
 }));
 
