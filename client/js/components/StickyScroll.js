@@ -52,6 +52,8 @@ export function renderStickyScroll(panels) {
   `
 }
 
+let isFirstTransition = true
+
 function cambiarImagen(index) {
   const src = stickScrollImages[index]
   if (!src) return
@@ -70,15 +72,38 @@ function cambiarImagen(index) {
   next.onerror = function() { this.onerror = null; this.src = placeholderImg(480, 640, 'Producto') }
   wrap.appendChild(next)
 
+  const duration = isFirstTransition ? 1.5 : 0.6
+  isFirstTransition = false
+
   if (current) {
     gsap.to(current, {
       opacity: 0,
-      duration: 0.6,
+      duration: duration,
       ease: 'power2.inOut',
       onComplete: () => current.remove()
     })
   }
   gsap.to(next, {
+    opacity: 1,
+    duration: duration,
+    ease: 'power2.inOut',
+  })
+}
+
+function fadeOutCurrentImage() {
+  const current = document.getElementById('sticky-img')
+  if (!current) return
+  gsap.to(current, {
+    opacity: 0,
+    duration: 0.6,
+    ease: 'power2.inOut',
+  })
+}
+
+function fadeInCurrentImage() {
+  const current = document.getElementById('sticky-img')
+  if (!current) return
+  gsap.to(current, {
     opacity: 1,
     duration: 0.6,
     ease: 'power2.inOut',
@@ -122,13 +147,15 @@ export function initStickyScroll() {
           onLeave: () => {
             panel.classList.remove('is-visible')
             panel.classList.add('is-exiting')
+            if (isLast) fadeOutCurrentImage()
           },
           onEnterBack: () => {
             panels.forEach(p => {
               p.classList.remove('is-visible', 'is-exiting')
             })
             panel.classList.add('is-visible')
-            cambiarImagen(i)
+            if (isLast) fadeInCurrentImage()
+            else cambiarImagen(i)
           },
           onLeaveBack: () => {
             if (i > 0) {
