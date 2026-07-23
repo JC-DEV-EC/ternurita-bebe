@@ -12,9 +12,6 @@ export function renderAdminSidebar(container) {
 
   container.innerHTML = `
     <nav class="admin-sidebar ${collapsed ? 'admin-sidebar--collapsed' : ''}">
-      <button class="admin-sidebar__close" id="admin-sidebar-close" aria-label="Cerrar menú">
-        <i data-lucide="x"></i>
-      </button>
       <div class="admin-sidebar__nav">
         ${links.map(link => `
           <a href="${link.href}"

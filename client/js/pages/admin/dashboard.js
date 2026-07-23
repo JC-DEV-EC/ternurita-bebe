@@ -1,7 +1,7 @@
 import { renderAdminSidebar, setupAdminToggle } from '../../components/AdminSidebar.js'
 import { productos, pedidos, estadisticas } from '../../services/admin.service.js'
 
-export default function render() {
+export default function render() {  
   const collapsed = localStorage.getItem('admin-sidebar-collapsed') === 'true'
   const today = new Date().toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
   return `
@@ -29,8 +29,8 @@ export default function render() {
             </div>
             <div class="dash-card__body">
               <div class="dash-card__label">Pedidos hoy</div>
-              <div class="dash-card__value" id="stats-pedidos-hoy">-</div>
-              <div class="dash-card__trend">Órdenes del día</div>
+               <div class="dash-card__value" id="stats-pedidos-hoy">-</div>
+               <div class="dash-card__trend">Órdenes del día</div>
             </div>
           </div>
           <div class="dash-card dash-card--stat is-loading" data-stat="productos">
@@ -214,25 +214,23 @@ function mostrarError(e) {
 }
 
 function animarContadores() {
-  import('https://cdn.jsdelivr.net/npm/animejs@4/lib/anime.esm.js').then(({ animate }) => {
-    document.querySelectorAll('.dash-card__value').forEach(el => {
-      const raw = el.textContent
-      const num = parseFloat(raw.replace(/[$,]/g, ''))
-      if (isNaN(num) || num === 0) return
-      const isCurrency = /^\$/.test(raw)
-      el.textContent = isCurrency ? '$0' : '0'
-      animate({
-        targets: { val: 0 },
-        val: num,
-        duration: 800,
-        ease: 'outQuart',
-        onUpdate: anim => {
-          const v = anim.currentValue
-          el.textContent = isCurrency ? `$${v.toFixed(2)}` : Math.round(v).toString()
-        }
-      })
-    })
-  }).catch(() => {})
+  document.querySelectorAll('.dash-card__value').forEach(el => {
+    const raw = el.textContent
+    const num = parseFloat(raw.replace(/[$,]/g, ''))
+    if (isNaN(num) || num === 0) return
+    const isCurrency = /^\$/.test(raw)
+    el.textContent = isCurrency ? '$0' : '0'
+    const duracion = 800
+    const inicio = performance.now()
+    function outQuart(t) { return 1 - Math.pow(1 - t, 4) }
+    function frame(ahora) {
+      const p = Math.min((ahora - inicio) / duracion, 1)
+      const v = outQuart(p) * num
+      el.textContent = isCurrency ? `$${v.toFixed(2)}` : Math.round(v).toString()
+      if (p < 1) requestAnimationFrame(frame)
+    }
+    requestAnimationFrame(frame)
+  })
 }
 
 function actualizarTimestamp() {
