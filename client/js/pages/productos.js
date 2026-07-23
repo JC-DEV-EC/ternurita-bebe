@@ -15,7 +15,7 @@ const estado = {
 
 export default function render() {
   return `
-    <div class="section" style="padding-top:calc(var(--nav-height) + var(--space-lg))">
+    <div class="section" style="padding: 75px 5%;">
       <div class="container">
         <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:var(--space-md);margin-bottom:var(--space-xl)">
           <div>
@@ -28,14 +28,14 @@ export default function render() {
           </div>
         </div>
 
-        <div style="display:grid;grid-template-columns:240px 1fr;gap:var(--space-xl)">
+        <div class="contentProducts">
           <aside class="cat-sidebar">
             <h3 class="cat-sidebar__title">Categorías</h3>
             <div id="categorias-filtro" class="cat-filter"></div>
           </aside>
 
           <div>
-            <div id="productos-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:var(--space-md)"></div>
+            <div id="productos-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:var(--space-md)"></div>
             <div id="paginacion" style="margin-top:var(--space-xl)"></div>
           </div>
         </div>

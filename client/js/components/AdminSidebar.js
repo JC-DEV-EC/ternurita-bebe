@@ -20,10 +20,6 @@ export function renderAdminSidebar(container) {
             <span class="admin-sidebar__label">${link.label}</span>
           </a>
         `).join('')}
-        <button class="admin-sidebar__link admin-sidebar__link--logout" id="btn-admin-logout-mobile">
-          <i data-lucide="log-out" class="admin-sidebar__icon"></i>
-          <span class="admin-sidebar__label">Salir</span>
-        </button>
       </div>
       <div class="admin-sidebar__footer">
         <button class="admin-sidebar__link" id="btn-admin-logout" style="width:100%;border:none;background:none;cursor:pointer;font-family:inherit;font-size:inherit;text-align:left">
