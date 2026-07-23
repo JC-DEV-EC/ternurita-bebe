@@ -1,7 +1,7 @@
 import store from '../store.js'
 import supabase from '../services/supabase.service.js'
 import CONFIG from '../config.js'
-import { showToast, formatDate, placeholderImg } from '../utils.js'
+import { showToast, formatDate } from '../utils.js'
 import { misPedidos } from '../services/pedidos.service.js'
 
 function initials(name) {
@@ -23,29 +23,32 @@ export default function render() {
   }
 
   return `
-    <div class="section" style="padding-top:calc(var(--nav-height) + var(--space-lg))">
+    <div class="profile-page">
       <div class="container" style="max-width:800px">
-        <div class="profile-header" style="display:flex;align-items:center;gap:var(--space-lg);margin-bottom:var(--space-2xl);flex-wrap:wrap">
-          <div style="position:relative;width:80px;height:80px;flex-shrink:0" id="avatar-container">
-            <div id="avatar-display" style="width:80px;height:80px;border-radius:50%;overflow:hidden;background:var(--accent);display:flex;align-items:center;justify-content:center">
+
+        <div class="profile-header">
+          <div class="profile-avatar">
+            <div class="profile-avatar__img ${tieneAvatar ? 'profile-avatar__img--has-image' : ''}" id="avatar-display">
               ${tieneAvatar
                 ? `<img src="${avatarUrl}" alt="Avatar" style="width:100%;height:100%;object-fit:cover" />`
-                : `<span style="font-size:var(--text-subhead);font-weight:var(--weight-semibold);color:#fff">${initials(usuario.nombre_completo)}</span>`
+                : `<span class="profile-avatar__initials">${initials(usuario.nombre_completo)}</span>`
               }
             </div>
-            <label for="avatar-input" style="position:absolute;bottom:0;right:0;width:28px;height:28px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;cursor:pointer;border:2px solid var(--bg-primary);transition:opacity var(--duration-fast) var(--ease-smooth);opacity:0.9" id="avatar-edit-btn">
-              <i data-lucide="pen" style="width:12px;height:12px;color:white;stroke-width:3"></i>
+            <label class="profile-avatar__edit" for="avatar-input" id="avatar-edit-btn">
+              <i data-lucide="pen"></i>
             </label>
-            <input type="file" id="avatar-input" accept="image/*" style="display:none" />
+            <input type="file" id="avatar-input" accept="image/*" hidden />
           </div>
-          <div style="flex:1">
-            <h1 class="headline-display" style="margin:0">${usuario.nombre_completo || 'Usuario'}</h1>
-            <p style="font-size:var(--text-caption);color:var(--text-secondary);margin-top:2px">${usuario.email || ''}</p>
+          <div class="profile-info">
+            <h1 class="profile-info__name">${usuario.nombre_completo || 'Usuario'}</h1>
+            <p class="profile-info__email">${usuario.email || ''}</p>
+            <div class="profile-info__role">
+              <span class="badge" style="text-transform:capitalize">${usuario.rol || 'cliente'}</span>
+            </div>
           </div>
-          <span class="badge" style="text-transform:capitalize">${usuario.rol || 'cliente'}</span>
         </div>
 
-        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:var(--space-md);margin-bottom:var(--space-2xl)" id="profile-stats">
+        <div class="profile-stats" id="profile-stats">
           <div class="stat-card">
             <p class="stat-card__label">Pedidos</p>
             <p class="stat-card__value" id="stats-pedidos-count">-</p>
@@ -60,40 +63,47 @@ export default function render() {
           </div>
         </div>
 
-        <div style="background:var(--bg-primary);border:1px solid var(--border-light);border-radius:18px;padding:var(--space-xl);margin-bottom:var(--space-2xl)">
-          <h2 style="font-size:var(--text-subhead);font-weight:var(--weight-semibold);margin-bottom:var(--space-lg)">Información personal</h2>
-          <form id="perfil-form" style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-md)">
-            <div style="grid-column:1/-1">
-              <label style="display:block;font-size:var(--text-caption);font-weight:var(--weight-medium);color:var(--text-secondary);margin-bottom:var(--space-xs)">Nombre completo</label>
+        <div class="profile-section">
+          <div class="profile-section__header">
+            <h2 class="profile-section__title">Informaci&oacute;n personal</h2>
+          </div>
+          <form id="perfil-form" class="profile-form">
+            <div class="profile-form__full profile-form__group">
+              <label class="profile-form__label" for="perfil-nombre">Nombre completo</label>
               <input type="text" id="perfil-nombre" class="input" value="${usuario.nombre_completo || ''}" required>
             </div>
-            <div>
-              <label style="display:block;font-size:var(--text-caption);font-weight:var(--weight-medium);color:var(--text-secondary);margin-bottom:var(--space-xs)">Email</label>
-              <input type="email" class="input" value="${usuario.email || ''}" readonly disabled style="background:var(--bg-secondary);color:var(--text-tertiary)">
+            <div class="profile-form__group">
+              <label class="profile-form__label" for="perfil-email">Email</label>
+              <input type="email" id="perfil-email" class="input" value="${usuario.email || ''}" readonly disabled style="background:var(--bg-secondary);color:var(--text-tertiary)">
             </div>
-            <div>
-              <label style="display:block;font-size:var(--text-caption);font-weight:var(--weight-medium);color:var(--text-secondary);margin-bottom:var(--space-xs)">Teléfono</label>
+            <div class="profile-form__group">
+              <label class="profile-form__label" for="perfil-telefono">Tel&eacute;fono</label>
               <input type="tel" id="perfil-telefono" class="input" value="${usuario.telefono || ''}" placeholder="Opcional">
             </div>
-            <div style="grid-column:1/-1">
-              <label style="display:block;font-size:var(--text-caption);font-weight:var(--weight-medium);color:var(--text-secondary);margin-bottom:var(--space-xs)">Dirección</label>
+            <div class="profile-form__full profile-form__group">
+              <label class="profile-form__label" for="perfil-direccion">Direcci&oacute;n</label>
               <textarea id="perfil-direccion" class="input" rows="2" style="resize:none" placeholder="Opcional">${usuario.direccion || ''}</textarea>
             </div>
-            <div style="grid-column:1/-1;margin-top:var(--space-sm)">
-              <button type="submit" class="btn btn--primary" style="width:100%" id="perfil-submit">Guardar cambios</button>
+            <div class="profile-form__actions">
+              <button type="submit" class="btn btn--primary profile-form__submit" id="perfil-submit">Guardar cambios</button>
             </div>
           </form>
         </div>
 
-        <div style="background:var(--bg-primary);border:1px solid var(--border-light);border-radius:18px;padding:var(--space-xl)">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--space-lg)">
-            <h2 style="font-size:var(--text-subhead);font-weight:var(--weight-semibold)">Pedidos recientes</h2>
-            <a href="#/pedidos" style="font-size:var(--text-caption);color:var(--accent);transition:color var(--duration-fast) var(--ease-smooth)">Ver todos</a>
+        <div class="profile-section">
+          <div class="profile-section__header">
+            <h2 class="profile-section__title">Pedidos recientes</h2>
+            <a href="#/pedidos" class="profile-section__link">Ver todos</a>
           </div>
-          <div id="profile-pedidos-list">
-            <p style="font-size:var(--text-caption);color:var(--text-tertiary)">Cargando...</p>
+          <div class="profile-pedidos-list" id="profile-pedidos-list">
+            <div class="profile-loading">
+              <span class="profile-loading__dot"></span>
+              <span class="profile-loading__dot"></span>
+              <span class="profile-loading__dot"></span>
+            </div>
           </div>
         </div>
+
       </div>
     </div>
   `
@@ -137,6 +147,7 @@ export async function afterRender() {
 
       const display = document.getElementById('avatar-display')
       if (display) {
+        display.classList.add('profile-avatar__img--has-image')
         display.innerHTML = `<img src="${data.avatar_url}" alt="Avatar" style="width:100%;height:100%;object-fit:cover" />`
       }
 
@@ -144,7 +155,7 @@ export async function afterRender() {
     } catch (err) {
       showToast(err.message, 'error')
     } finally {
-      if (editBtn) editBtn.style.opacity = '0.9'
+      if (editBtn) editBtn.style.opacity = ''
       avatarInput.value = ''
     }
   })
@@ -204,7 +215,12 @@ async function cargarPedidos() {
   try {
     const { data } = await misPedidos(store.usuario?.id)
     if (!data || data.length === 0) {
-      container.innerHTML = '<p style="font-size:var(--text-caption);color:var(--text-tertiary)">Aún no has realizado ningún pedido.</p>'
+      container.innerHTML = `
+        <div class="profile-empty">
+          <p class="profile-empty__text">A&uacute;n no has realizado ning&uacute;n pedido.</p>
+          <a href="#/" class="btn btn--primary btn--sm">Ir a la tienda</a>
+        </div>
+      `
       return
     }
 
@@ -212,19 +228,23 @@ async function cargarPedidos() {
       const estado = p.estado || 'pendiente'
       const color = estado === 'entregado' ? '#34C759' : estado === 'enviado' ? '#007AFF' : estado === 'cancelado' ? '#DC2626' : '#FF9F0A'
       return `
-        <a href="#/pedidos/${p.id}" style="display:flex;align-items:center;justify-content:space-between;padding:var(--space-sm) 0;border-bottom:1px solid var(--border-light);transition:background var(--duration-fast) var(--ease-smooth);text-decoration:none;color:inherit">
-          <div>
-            <p style="font-size:var(--text-body);font-weight:var(--weight-medium)">Pedido #${p.id}</p>
-            <p style="font-size:var(--text-caption);color:var(--text-tertiary)">${p.created_at ? formatDate(p.created_at) : ''}</p>
+        <a href="#/pedidos/${p.id}" class="profile-pedido-item">
+          <div class="profile-pedido-item__left">
+            <p class="profile-pedido-item__id">Pedido #${p.id}</p>
+            <p class="profile-pedido-item__date">${p.created_at ? formatDate(p.created_at) : ''}</p>
           </div>
-          <div style="text-align:right">
-            <p style="font-weight:var(--weight-semibold)">$${(p.total_pedido || 0).toFixed(2)}</p>
-            <span style="display:inline-block;font-size:11px;font-weight:var(--weight-medium);color:${color}">${estado}</span>
+          <div class="profile-pedido-item__right">
+            <p class="profile-pedido-item__price">$${(p.total_pedido || 0).toFixed(2)}</p>
+            <span class="profile-pedido-item__status" style="color:${color};font-size:var(--text-small);font-weight:var(--weight-medium)">${estado}</span>
           </div>
         </a>
       `
     }).join('')
   } catch {
-    container.innerHTML = '<p style="font-size:var(--text-caption);color:var(--text-tertiary)">Error al cargar pedidos.</p>'
+    container.innerHTML = `
+      <div class="profile-empty">
+        <p class="profile-empty__text">Error al cargar pedidos.</p>
+      </div>
+    `
   }
 }

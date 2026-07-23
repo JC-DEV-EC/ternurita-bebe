@@ -11,7 +11,7 @@ const statusClass = {
 
 export default function render() {
   return `
-    <div style="padding-top:calc(var(--nav-height) + var(--space-lg))">
+    <div style="margin-bottom: 10%; padding-top:calc(var(--nav-height) + var(--space-lg));">
       <div class="container" style="max-width:720px">
         <div style="margin-bottom:var(--space-xl)">
           <span class="badge">Pedidos</span>
