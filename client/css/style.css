@@ -392,6 +392,7 @@ h1, h2, h3, h4, h5, h6 {
   .container {
     padding: 0 var(--space-sm);
   }
+  
 
   .section {
     padding: var(--space-xl) 0;

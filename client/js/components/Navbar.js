@@ -11,7 +11,6 @@ export function renderNavbar(container) {
   container.innerHTML = `
     <nav class="navbar" id="navbar-main">
       <div class="navbar__inner">
-        <div></div>
         <div class="navbar__left">
           <a href="#" class="navbar__brand">
             <img src="assets/images/img-logo/logo-page.png" alt="Ternurita Bebé">

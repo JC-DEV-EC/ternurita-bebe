@@ -1,5 +1,5 @@
-import { renderAdminSidebar, setupAdminToggle } from '../../components/AdminSidebar.js?v=3'
-import { productos, pedidos, estadisticas } from '../../services/admin.service.js?v=3'
+import { renderAdminSidebar, setupAdminToggle } from '../../components/AdminSidebar.js'
+import { productos, pedidos, estadisticas } from '../../services/admin.service.js'
 
 export default function render() {
   const collapsed = localStorage.getItem('admin-sidebar-collapsed') === 'true'
@@ -29,7 +29,7 @@ export default function render() {
             </div>
             <div class="dash-card__body">
               <div class="dash-card__label">Pedidos hoy</div>
-              <div class="dash-card__value" data-count="stats-pedidos-hoy">-</div>
+              <div class="dash-card__value" id="stats-pedidos-hoy">-</div>
               <div class="dash-card__trend">Órdenes del día</div>
             </div>
           </div>
@@ -39,7 +39,7 @@ export default function render() {
             </div>
             <div class="dash-card__body">
               <div class="dash-card__label">Productos</div>
-              <div class="dash-card__value" data-count="stats-productos">-</div>
+              <div class="dash-card__value" id="stats-productos">-</div>
               <div class="dash-card__trend">Total activos</div>
             </div>
           </div>
@@ -49,7 +49,7 @@ export default function render() {
             </div>
             <div class="dash-card__body">
               <div class="dash-card__label">Clientes</div>
-              <div class="dash-card__value" data-count="stats-usuarios">-</div>
+              <div class="dash-card__value" id="stats-usuarios">-</div>
               <div class="dash-card__trend">Registrados</div>
             </div>
           </div>
@@ -59,7 +59,7 @@ export default function render() {
             </div>
             <div class="dash-card__body">
               <div class="dash-card__label">Ingresos totales</div>
-              <div class="dash-card__value" data-count="stats-ingresos">-</div>
+              <div class="dash-card__value" id="stats-ingresos">-</div>
               <div class="dash-card__trend">Histórico</div>
             </div>
           </div>
@@ -147,37 +147,50 @@ export async function afterRender() {
 }
 
 async function cargarStats() {
-  let data
+  let raw
+
   try {
-    data = await estadisticas.obtener()
-  } catch (e1) {
-    console.error('Error en endpoint unificado, intentando individual:', e1)
+    raw = await estadisticas.obtener()
+  } catch (_) {
     try {
       const [prods, ords] = await Promise.all([productos.listar(), pedidos.listar()])
       const hoy = (ords || []).filter(p => {
         if (!p.created_at) return false
         return new Date(p.created_at).toDateString() === new Date().toDateString()
       })
-      data = {
-        productos: (prods || []).length,
-        pedidos_totales: (ords || []).length,
+      raw = {
         pedidos_hoy: hoy.length,
+        productos: (prods || []).length,
         clientes: new Set((ords || []).map(p => p.cliente_id).filter(Boolean)).size,
         ingresos_totales: (ords || []).reduce((s, p) => s + (p.total_pedido || 0), 0),
+        pedidos_totales: (ords || []).length,
       }
-    } catch (e2) {
-      console.error('Error en fallback individual:', e2)
-      const el = document.getElementById('last-updated')
-      if (el) el.textContent = 'Error: ' + (e2.message || 'desconocido')
+    } catch (e) {
+      mostrarError(e)
       return
     }
   }
 
+  const data = normalizar(raw)
+  renderizar(data)
+}
+
+function normalizar(raw) {
+  if (!raw || typeof raw !== 'object') raw = {}
+  return {
+    pedidos_hoy: raw.pedidos_hoy ?? raw.pedidosDelDia ?? raw.ordenes_hoy ?? 0,
+    productos: raw.productos ?? raw.totalProductos ?? raw.productos_activos ?? 0,
+    clientes: raw.clientes ?? raw.usuarios ?? raw.totalClientes ?? 0,
+    ingresos_totales: raw.ingresos_totales ?? raw.totalIngresos ?? raw.ingresos ?? 0,
+    pedidos_totales: raw.pedidos_totales ?? raw.totalPedidos ?? raw.ordenes_totales ?? 0,
+  }
+}
+
+function renderizar(data) {
   const set = (id, val) => {
     const el = document.getElementById(id)
     if (!el) return
     el.textContent = val
-    el.setAttribute('data-value', val)
   }
 
   set('stats-pedidos-hoy', data.pedidos_hoy)
@@ -191,15 +204,23 @@ async function cargarStats() {
   set('summary-ingresos', `$${(data.ingresos_totales || 0).toFixed(2)}`)
 }
 
+function mostrarError(e) {
+  const el = document.getElementById('last-updated')
+  if (el) el.textContent = 'Error: ' + (e.message || 'desconocido')
+  document.querySelectorAll('.dash-card--stat.is-loading').forEach(c => {
+    c.classList.remove('is-loading')
+    c.querySelector('.dash-card__value') && (c.querySelector('.dash-card__value').textContent = '—')
+  })
+}
+
 function animarContadores() {
   import('https://cdn.jsdelivr.net/npm/animejs@4/lib/anime.esm.js').then(({ animate }) => {
-    document.querySelectorAll('[data-count]').forEach(el => {
-      const target = el
-      const raw = target.getAttribute('data-value') || target.textContent
+    document.querySelectorAll('.dash-card__value').forEach(el => {
+      const raw = el.textContent
       const num = parseFloat(raw.replace(/[$,]/g, ''))
-      if (isNaN(num)) return
+      if (isNaN(num) || num === 0) return
       const isCurrency = /^\$/.test(raw)
-      target.textContent = isCurrency ? '$0' : '0'
+      el.textContent = isCurrency ? '$0' : '0'
       animate({
         targets: { val: 0 },
         val: num,
@@ -207,7 +228,7 @@ function animarContadores() {
         ease: 'outQuart',
         onUpdate: anim => {
           const v = anim.currentValue
-          target.textContent = isCurrency ? `$${v.toFixed(2)}` : Math.round(v).toString()
+          el.textContent = isCurrency ? `$${v.toFixed(2)}` : Math.round(v).toString()
         }
       })
     })

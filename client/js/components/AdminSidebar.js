@@ -7,10 +7,14 @@ export function renderAdminSidebar(container) {
   ]
 
   const hashActual = window.location.hash
-  const collapsed = localStorage.getItem('admin-sidebar-collapsed') === 'true'
+  const ls = localStorage.getItem('admin-sidebar-collapsed')
+  const collapsed = ls !== null ? ls === 'true' : window.innerWidth <= 768
 
   container.innerHTML = `
     <nav class="admin-sidebar ${collapsed ? 'admin-sidebar--collapsed' : ''}">
+      <button class="admin-sidebar__close" id="admin-sidebar-close" aria-label="Cerrar menú">
+        <i data-lucide="x"></i>
+      </button>
       <div class="admin-sidebar__nav">
         ${links.map(link => `
           <a href="${link.href}"
@@ -19,6 +23,10 @@ export function renderAdminSidebar(container) {
             <span class="admin-sidebar__label">${link.label}</span>
           </a>
         `).join('')}
+        <button class="admin-sidebar__link admin-sidebar__link--logout" id="btn-admin-logout-mobile">
+          <i data-lucide="log-out" class="admin-sidebar__icon"></i>
+          <span class="admin-sidebar__label">Salir</span>
+        </button>
       </div>
       <div class="admin-sidebar__footer">
         <button class="admin-sidebar__link" id="btn-admin-logout" style="width:100%;border:none;background:none;cursor:pointer;font-family:inherit;font-size:inherit;text-align:left">
@@ -37,6 +45,11 @@ export function renderAdminSidebar(container) {
     const { logout } = await import('../auth.js')
     await logout()
   })
+
+  container.querySelector('#btn-admin-logout-mobile')?.addEventListener('click', async () => {
+    const { logout } = await import('../auth.js')
+    await logout()
+  })
 }
 
 export function setupAdminToggle() {
@@ -46,11 +59,31 @@ export function setupAdminToggle() {
   const main = document.querySelector('.admin-main')
   if (!sidebar) return
 
+  const close = () => {
+    sidebar.classList.add('admin-sidebar--collapsed')
+    main?.classList.remove('admin-main--expanded')
+    toggle?.classList.remove('admin-sidebar-toggle--collapsed')
+    localStorage.setItem('admin-sidebar-collapsed', 'true')
+  }
+
   toggle.addEventListener('click', () => {
-    const isNowCollapsed = !sidebar.classList.contains('admin-sidebar--collapsed')
-    sidebar.classList.toggle('admin-sidebar--collapsed', isNowCollapsed)
-    main?.classList.toggle('admin-main--expanded', isNowCollapsed)
-    toggle.classList.toggle('admin-sidebar-toggle--collapsed', isNowCollapsed)
-    localStorage.setItem('admin-sidebar-collapsed', isNowCollapsed)
+    if (!sidebar.classList.contains('admin-sidebar--collapsed')) {
+      close()
+      return
+    }
+    sidebar.classList.remove('admin-sidebar--collapsed')
+    main?.classList.add('admin-main--expanded')
+    toggle.classList.add('admin-sidebar-toggle--collapsed')
+    localStorage.setItem('admin-sidebar-collapsed', 'false')
+  })
+
+  document.getElementById('admin-sidebar-close')?.addEventListener('click', close)
+
+  document.querySelectorAll('.admin-sidebar__link').forEach(link => {
+    link.addEventListener('click', (e) => {
+      if (link.getAttribute('href') && window.innerWidth <= 768) {
+        close()
+      }
+    })
   })
 }

@@ -198,6 +198,7 @@ async function cargarGaleria() {
     return `
       <a href="#/productos?categoria=${item.slug}" class="gallery-grid__item ${wide}">
         <img src="${item.imagen || placeholderImg(wide ? 800 : 400, wide ? 400 : 400, item.nombre, item.bg, item.fg)}" alt="${item.nombre}" loading="lazy" />
+        <div class="gallery-grid__overlay"><span class="gallery-grid__label">${item.nombre}</span></div>
       </a>
     `
   }).join('')
