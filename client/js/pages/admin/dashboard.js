@@ -91,38 +91,7 @@ export default function render() {
                 </a>
               </div>
             </div>
-          </div>
-
-          <div class="dash-card">
-            <div class="dash-card__header">
-              <svg class="dash-card__header-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
-              <h3 class="dash-card__header-title">Resumen</h3>
-            </div>
-            <div class="dash-card__body">
-              <div class="dash-summary" id="dash-summary">
-                <div class="dash-summary__row">
-                  <span class="dash-summary__label">Productos activos</span>
-                  <span class="dash-summary__value" id="summary-productos">-</span>
-                </div>
-                <div class="dash-summary__row">
-                  <span class="dash-summary__label">Pedidos totales</span>
-                  <span class="dash-summary__value" id="summary-pedidos">-</span>
-                </div>
-                <div class="dash-summary__row">
-                  <span class="dash-summary__label">Pedidos hoy</span>
-                  <span class="dash-summary__value dash-summary__value--accent" id="summary-pedidos-hoy">-</span>
-                </div>
-                <div class="dash-summary__row">
-                  <span class="dash-summary__label">Clientes activos</span>
-                  <span class="dash-summary__value" id="summary-usuarios">-</span>
-                </div>
-                <div class="dash-summary__row dash-summary__row--total">
-                  <span class="dash-summary__label">Ingresos totales</span>
-                  <span class="dash-summary__value dash-summary__value--accent" id="summary-ingresos">-</span>
-                </div>
-              </div>
-            </div>
-          </div>
+          </div>          
         </div>
       </div>
     </div>

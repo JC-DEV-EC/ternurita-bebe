@@ -3,6 +3,10 @@
    ─── ─── ─── ─── ─── ─── ─── ─── ─── ─── ─── ─── */
 
 /* ─── Botones ─── */
+:root{
+  --card1-gradient-color1: #1E40AF;
+  --card1-gradient-color2: #d2ee37;
+}
 .btn {
   display: inline-flex;
   align-items: center;
@@ -1285,20 +1289,30 @@
 }
 
 .admin-sidebar {
-  width: 220px;
-  min-width: 220px;
-  display: flex;
-  flex-direction: column;
-  background: var(--bg-primary);
-  border: 1px solid var(--border-light);
-  border-radius: 16px;
-  height: fit-content;
-  padding: var(--space-sm);
-  margin-top: 11rem;
-  transition: width var(--duration-base) var(--ease-smooth), min-width var(--duration-base) var(--ease-smooth), opacity var(--duration-base) var(--ease-smooth), padding var(--duration-base) var(--ease-smooth);
-  overflow: hidden;
-  white-space: nowrap;
   position: sticky;
+    top: calc(var(--nav-height) + var(--space-lg));
+
+    width: 220px;
+    min-width: 220px;
+
+    display: flex;
+    flex-direction: column;
+
+    background: var(--bg-primary);
+    border: 1px solid var(--border-light);
+    border-radius: 16px;
+
+    padding: var(--space-md);
+    height: fit-content;
+
+    transition:
+        width var(--duration-base) var(--ease-smooth),
+        min-width var(--duration-base) var(--ease-smooth),
+        opacity var(--duration-base) var(--ease-smooth),
+        padding var(--duration-base) var(--ease-smooth);
+
+    overflow: hidden;
+    white-space: nowrap;
 }
 
 .admin-sidebar--collapsed {
@@ -1384,7 +1398,7 @@
 
 .admin-main {
   flex: 1;
-  padding: var(--space-xl);
+  padding: 8% 2%;
   transition: margin-left var(--duration-base) var(--ease-smooth);
   min-width: 0;
 }
@@ -1538,7 +1552,7 @@
   transform: translateY(-2px);
 }
 .dash-card--stat.is-visible:hover {
-  transform: translateY(-2px);
+  transform: translateY(-2px);  
   .dash-card__icon-shape--orders {box-shadow: 5px 5px 90px #176dc8;}
   .dash-card__icon-shape--products {box-shadow: 5px 5px 90px #7724a1;}
   .dash-card__icon-shape--users {box-shadow: 5px 5px 90px #39893d;}
@@ -1653,7 +1667,7 @@
 }
 
 .dash-card:not(.dash-card--stat) .dash-card__body {
-  padding: 0 1.25rem 1.25rem;
+  padding: 1.25rem;
 }
 .dash-card__label {
   font-size: 0.7rem;
@@ -1696,7 +1710,7 @@
 
 .dash-actions {
   display: grid;
-  gap: 8%;
+  gap: 1%;
   padding: 0.25rem 0;
 }
 .dash-action {
@@ -1746,10 +1760,7 @@
 }
 
 .dash-grid-2 {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--space-md);
-  margin-bottom: var(--space-xl);
+
 }
 
 .dash-summary {
@@ -2707,8 +2718,22 @@
     grid-template-columns: repeat(3, 1fr);
   }
   .dash-grid {
-        grid-template-columns: repeat(4, 1fr);
+        grid-template-columns: repeat(3, 1fr);
   }
+  .dash-actions {
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+}
+
+.dash-actions > * {
+    flex: 1;
+}
+}
+@media(min-width:1375px){
+  .dash-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
 }
 @media (max-width: 480px) {
   /*    */
