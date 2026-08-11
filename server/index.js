@@ -12,11 +12,14 @@ const checkoutRoutes = require('./routes/checkout.routes');
 const authRoutes = require('./routes/auth.routes');
 const searchRoutes = require('./routes/search.routes');
 const perfilRoutes = require('./routes/perfil.routes');
+const pagosRoutes = require('./routes/pagos.routes');
 const adminRoutes = require('./routes/admin');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 const { supabase, isConfigured } = require('./config/supabase');
+
+app.set('trust proxy', 1);
 
 app.use(helmet({
   contentSecurityPolicy: {
@@ -70,6 +73,11 @@ app.use(express.static(path.join(__dirname, '..', 'client'), {
   },
 }));
 
+app.get('/config.js', (_req, res) => {
+  res.type('application/javascript')
+    .send(`window.APP_CONFIG = { API_BASE_URL: ${JSON.stringify(process.env.API_BASE_URL || '')} };`);
+});
+
 app.get('/api/health', async (_req, res) => {
   let dbStatus = false;
   if (isConfigured) {
@@ -87,6 +95,7 @@ app.use('/api/checkout', authLimiter, checkoutRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/search', searchRoutes);
 app.use('/api/perfil', perfilRoutes);
+app.use('/api/pagos', apiLimiter, pagosRoutes);
 app.use('/api/admin', apiLimiter, adminRoutes);
 
 app.get('/.well-known/security.txt', (_req, res) => {
@@ -113,19 +122,30 @@ app.use(errorHandler);
 async function checkMigrations() {
   try {
     const { error } = await supabase.from('perfiles').select('avatar_url').limit(1)
-    if (!error || !error.message || !error.message.includes('column')) return
-    logger.warn('Columna avatar_url no existe en perfiles. Ejecuta en Supabase SQL Editor:')
-    logger.warn('  ALTER TABLE public.perfiles ADD COLUMN IF NOT EXISTS avatar_url text;')
-    logger.warn('Creando bucket avatars si no existe...')
-    const { data: buckets } = await supabase.storage.listBuckets()
-    if (!buckets?.find(b => b.name === 'avatars')) {
-      await supabase.storage.createBucket('avatars', { public: true })
-      logger.info('Bucket avatars creado')
+    if (error?.message?.includes('column')) {
+      logger.warn('Columna avatar_url no existe en perfiles. Ejecuta en Supabase SQL Editor:')
+      logger.warn('  ALTER TABLE public.perfiles ADD COLUMN IF NOT EXISTS avatar_url text;')
+      logger.warn('Creando bucket avatars si no existe...')
+      const { data: buckets } = await supabase.storage.listBuckets()
+      if (!buckets?.find(b => b.name === 'avatars')) {
+        await supabase.storage.createBucket('avatars', { public: true })
+        logger.info('Bucket avatars creado')
+      }
     }
   } catch (e) {
     if (e.message?.includes('column')) {
       logger.warn('Ejecuta en Supabase SQL Editor: ALTER TABLE public.perfiles ADD COLUMN IF NOT EXISTS avatar_url text;')
     }
+  }
+
+  try {
+    const { error } = await supabase.from('pedidos').select('estado_pago').limit(1)
+    if (error?.message?.includes('column')) {
+      logger.warn('Pagos por transferencia: falta ejecutar supabase/migrations/003_pagos_banca_movil.sql')
+      logger.warn('  (agrega estado_pago, metodo_pago, pago_referencia, pagado_at, pago_confirmado_por y las funciones RPC)')
+    }
+  } catch (e) {
+    logger.warn('Pagos por transferencia: ejecuta supabase/migrations/003_pagos_banca_movil.sql en Supabase SQL Editor')
   }
 }
 

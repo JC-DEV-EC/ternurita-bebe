@@ -20,7 +20,7 @@ router.get('/', async (_req, res) => {
       supabase.from('pedidos').select('count', { count: 'exact', head: true }),
       supabase.from('perfiles').select('count', { count: 'exact', head: true }),
       supabase.from('pedidos').select('count', { count: 'exact', head: true }).gte('fecha_pedido', today.toISOString()).lt('fecha_pedido', tomorrow.toISOString()),
-      supabase.from('pedidos').select('total_pedido'),
+      supabase.from('pedidos').select('total_pedido').eq('estado_pago', 'pagado'),
       supabase.from('pedidos').select('cliente_id'),
     ]);
 

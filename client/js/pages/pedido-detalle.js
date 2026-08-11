@@ -1,12 +1,19 @@
 import store from '../store.js'
-import { detallePedido } from '../services/pedidos.service.js'
-import { formatDate } from '../utils.js'
+import { detallePedido, obtenerDatosPago, reportarPago, cancelarPedido } from '../services/pedidos.service.js'
+import { formatDate, showToast } from '../utils.js'
 
 const statusClass = {
   pendiente: 'status-badge--pendiente',
   enviado: 'status-badge--enviado',
   entregado: 'status-badge--entregado',
   cancelado: 'status-badge--cancelado',
+}
+
+const pagoTexto = {
+  pendiente: 'Pago pendiente',
+  en_revision: 'Pago en revisión',
+  pagado: 'Pagado',
+  fallido: 'Pago no realizado',
 }
 
 export default function render(params) {
@@ -45,6 +52,133 @@ export async function afterRender(params) {
   }
 
   renderDetalle(data)
+  renderPagoSection(data)
+}
+
+async function renderPagoSection(pedido) {
+  const container = document.getElementById('pedido-detalle-contenido')
+  if (!container) return
+
+  const estadoPago = pedido.estado_pago || 'pendiente'
+
+  const estáPagado = estadoPago === 'pagado'
+  const puedeCancelar = pedido.estado === 'pendiente' && pedido.estado_pago !== 'pagado'
+
+  let seccionPago = ''
+  if (pedido.estado === 'cancelado') {
+    seccionPago = `
+      <div class="pedido-section" style="border:1px solid var(--border-light)">
+        <h2 class="pedido-section__title">Pago</h2>
+        <p style="color:var(--text-secondary)">Este pedido fue cancelado. No se necesitan más acciones de pago.</p>
+      </div>
+    `
+  } else if (estáPagado) {
+    seccionPago = `
+      <div class="pedido-section" style="border:1px solid var(--border-light)">
+        <h2 class="pedido-section__title">Pago</h2>
+        <span class="status-badge status-badge--entregado">Pagado</span>
+        ${pedido.pago_referencia ? `<p style="color:var(--text-secondary);margin-top:var(--space-sm)">Comprobante: ${pedido.pago_referencia}</p>` : ''}
+      </div>
+    `
+  } else if (estadoPago === 'en_revision') {
+    seccionPago = `
+      <div class="pedido-section" style="border:1px solid var(--border-light)">
+        <h2 class="pedido-section__title">Pago</h2>
+        <span class="status-badge status-badge--pendiente">Pago en revisión</span>
+        <p style="color:var(--text-secondary);margin-top:var(--space-sm)">Recibimos tu comprobante <strong>${pedido.pago_referencia || ''}</strong>. Estamos verificando la transferencia y confirmaremos tu pedido pronto.</p>
+      </div>
+    `
+  } else {
+    seccionPago = `
+      <div class="pedido-section" style="border:1px solid var(--border-light)">
+        <h2 class="pedido-section__title">Pago por Banca Móvil</h2>
+        <p style="color:var(--text-secondary);margin-bottom:var(--space-sm)">Transfiere el total del pedido y reporta tu comprobante. Verificaremos tu pago y confirmaremos el pedido.</p>
+        <div id="pago-datos-bancarios" style="margin-bottom:var(--space-md)"><div class="spinner" style="width:20px;height:20px;border-width:2px"></div></div>
+        <form id="pago-form" style="display:flex;flex-direction:column;gap:var(--space-sm)">
+          <label class="checkout-form__label">Número de comprobante</label>
+          <input type="text" id="pago-referencia" class="input" placeholder="Ej: 1234567890123456" required minlength="6">
+          <div id="pago-error" style="display:none;color:var(--danger-color, #dc2626);font-size:var(--text-small)"></div>
+          <button type="submit" class="btn btn--primary" style="align-self:flex-start" id="pago-reportar-btn">Ya transferí — verificar pago</button>
+        </form>
+      </div>
+    `
+  }
+
+  container.insertAdjacentHTML('beforeend', `
+    ${seccionPago}
+    ${puedeCancelar ? `
+      <div class="pedido-section" style="border:1px solid var(--border-light)">
+        <h2 class="pedido-section__title">Cancelar pedido</h2>
+        <p style="color:var(--text-secondary);margin-bottom:var(--space-sm)">Si ya no quieres este pedido, puedes cancelarlo. Los productos volverán a estar disponibles.</p>
+        <button class="btn btn--ghost" id="pedido-cancelar-btn">Cancelar pedido</button>
+      </div>
+    ` : ''}
+  `)
+
+  const datosBancarios = document.getElementById('pago-datos-bancarios')
+  if (datosBancarios) {
+    const { data, error } = await obtenerDatosPago()
+    if (error || !data?.datos_bancarios) {
+      datosBancarios.innerHTML = '<p style="color:var(--danger-color, #dc2626);font-size:var(--text-small)">No se pudieron cargar los datos de pago. Intenta luego.</p>'
+    } else {
+      const d = data.datos_bancarios
+      datosBancarios.innerHTML = `
+        <div style="background:var(--bg-secondary);border-radius:12px;padding:var(--space-md);line-height:1.9">
+          <p><strong>Banco:</strong> ${d.banco} (${d.tipo})</p>
+          <p><strong>Titular:</strong> ${d.titular}</p>
+          ${d.cedula ? `<p><strong>Cédula/RUC:</strong> ${d.cedula}</p>` : ''}
+          ${d.cuenta ? `<p><strong>Cuenta:</strong> ${d.cuenta}</p>` : ''}
+          ${d.telefono ? `<p><strong>Teléfono (Banca Móvil):</strong> ${d.telefono}</p>` : ''}
+        </div>
+      `
+    }
+  }
+
+  const form = document.getElementById('pago-form')
+  if (form) {
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault()
+      const btn = document.getElementById('pago-reportar-btn')
+      const input = document.getElementById('pago-referencia')
+      const errorEl = document.getElementById('pago-error')
+      const referencia = input.value.trim()
+      if (referencia.length < 6) {
+        errorEl.textContent = 'Ingresa el número de comprobante (mín. 6 caracteres)'
+        errorEl.style.display = 'block'
+        return
+      }
+      btn.disabled = true
+      btn.textContent = 'Verificando...'
+      const { data, error } = await reportarPago(pedido.id, referencia)
+      if (error) {
+        errorEl.textContent = error.error || 'Error al reportar el pago'
+        errorEl.style.display = 'block'
+        btn.disabled = false
+        btn.textContent = 'Ya transferí — verificar pago'
+        return
+      }
+      showToast('¡Pago reportado! Verificaremos tu transferencia', 'success')
+      renderPagoSection({ ...pedido, estado_pago: 'en_revision' })
+    })
+  }
+
+  const cancelarBtn = document.getElementById('pedido-cancelar-btn')
+  if (cancelarBtn) {
+    cancelarBtn.addEventListener('click', async () => {
+      if (!confirm('¿Seguro que quieres cancelar este pedido?')) return
+      cancelarBtn.disabled = true
+      cancelarBtn.textContent = 'Cancelando...'
+      const { data, error } = await cancelarPedido(pedido.id)
+      if (error) {
+        showToast(error.error || 'No se pudo cancelar el pedido', 'error')
+        cancelarBtn.disabled = false
+        cancelarBtn.textContent = 'Cancelar pedido'
+        return
+      }
+      showToast('Pedido cancelado', 'success')
+      window.location.reload()
+    })
+  }
 }
 
 function renderDetalle(pedido) {
@@ -61,7 +195,10 @@ function renderDetalle(pedido) {
             <p style="font-size:var(--text-caption);color:var(--text-secondary);margin-bottom:2px">Fecha</p>
             <p style="font-weight:var(--weight-medium)">${formatDate(pedido.created_at)}</p>
           </div>
-          <span class="status-badge ${statusClass[pedido.estado] || ''}">${pedido.estado}</span>
+          <div style="display:flex;gap:var(--space-xs);align-items:center">
+            <span class="status-badge ${statusClass[pedido.estado] || ''}">${pedido.estado}</span>
+            ${pedido.estado_pago !== 'pagado' ? `<span class="status-badge ${pedido.estado_pago === 'fallido' ? statusClass.cancelado : statusClass.pendiente}">${pagoTexto[pedido.estado_pago] || pagoTexto.pendiente}</span>` : ''}
+          </div>
         </div>
       </div>
 

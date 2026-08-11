@@ -68,7 +68,10 @@ async function cargarPedidos() {
           <div style="flex:1;min-width:0">
             <div class="pedido-card__header" style="margin-bottom:4px">
               <span class="pedido-card__id">Pedido #${pedido.id}</span>
-              <span class="status-badge ${statusClass[pedido.estado] || ''}">${pedido.estado}</span>
+              <div style="display:flex;gap:6px;align-items:center">
+                ${pedido.estado_pago && pedido.estado_pago !== 'pendiente' ? `<span class="status-badge ${pedido.estado_pago === 'fallido' ? statusClass.cancelado : pedido.estado_pago === 'pagado' ? statusClass.entregado : statusClass.pendiente}" style="font-size:10px;padding:2px 8px">${pedido.estado_pago === 'pagado' ? 'Pagado' : pedido.estado_pago === 'en_revision' ? 'En revisión' : 'No pagado'}</span>` : ''}
+                <span class="status-badge ${statusClass[pedido.estado] || ''}">${pedido.estado}</span>
+              </div>
             </div>
             <div class="pedido-card__info">
               <span>${formatDate(pedido.created_at)}</span>

@@ -10,6 +10,7 @@ const badges = {
 }
 
 let filtroActual = ''
+let filtroPagoActual = ''
 
 export default function render() {
   const collapsed = localStorage.getItem('admin-sidebar-collapsed') === 'true'
@@ -22,12 +23,18 @@ export default function render() {
           <span class="badge">Admin</span>
           <h1 class="headline-display">Pedidos</h1>
         </div>
-        <div style="display:flex;gap:var(--space-xs);flex-wrap:wrap;margin-bottom:var(--space-lg)" id="filtros-pedidos">
-          <button data-estado="" class="btn btn--ghost btn--sm ${!filtroActual ? 'btn--active' : ''}">Todos</button>
-          <button data-estado="pendiente" class="btn btn--ghost btn--sm ${filtroActual === 'pendiente' ? 'btn--active' : ''}">Pendientes</button>
-          <button data-estado="enviado" class="btn btn--ghost btn--sm ${filtroActual === 'enviado' ? 'btn--active' : ''}">Enviados</button>
-          <button data-estado="entregado" class="btn btn--ghost btn--sm ${filtroActual === 'entregado' ? 'btn--active' : ''}">Entregados</button>
-          <button data-estado="cancelado" class="btn btn--ghost btn--sm ${filtroActual === 'cancelado' ? 'btn--active' : ''}">Cancelados</button>
+        <div style="display:flex;gap:var(--space-xs);flex-wrap:wrap;margin-bottom:var(--space-xs)" id="filtros-pedidos">
+          <button data-estado="" class="btn btn--ghost btn--sm btn-filtro-estado ${!filtroActual ? 'btn--active' : ''}">Todos</button>
+          <button data-estado="pendiente" class="btn btn--ghost btn--sm btn-filtro-estado ${filtroActual === 'pendiente' ? 'btn--active' : ''}">Pendientes</button>
+          <button data-estado="enviado" class="btn btn--ghost btn--sm btn-filtro-estado ${filtroActual === 'enviado' ? 'btn--active' : ''}">Enviados</button>
+          <button data-estado="entregado" class="btn btn--ghost btn--sm btn-filtro-estado ${filtroActual === 'entregado' ? 'btn--active' : ''}">Entregados</button>
+          <button data-estado="cancelado" class="btn btn--ghost btn--sm btn-filtro-estado ${filtroActual === 'cancelado' ? 'btn--active' : ''}">Cancelados</button>
+        </div>
+        <div style="display:flex;gap:var(--space-xs);flex-wrap:wrap;margin-bottom:var(--space-lg)" id="filtros-pagos">
+          <button data-estado-pago="" class="btn btn--ghost btn--sm btn-filtro-pago ${!filtroPagoActual ? 'btn--active' : ''}">Todos los pagos</button>
+          <button data-estado-pago="en_revision" class="btn btn--ghost btn--sm btn-filtro-pago ${filtroPagoActual === 'en_revision' ? 'btn--active' : ''}">Pagos por confirmar</button>
+          <button data-estado-pago="pendiente" class="btn btn--ghost btn--sm btn-filtro-pago ${filtroPagoActual === 'pendiente' ? 'btn--active' : ''}">Sin pago</button>
+          <button data-estado-pago="pagado" class="btn btn--ghost btn--sm btn-filtro-pago ${filtroPagoActual === 'pagado' ? 'btn--active' : ''}">Pagados</button>
         </div>
         <div style="background:var(--bg-primary);border:1px solid var(--border-light);border-radius:18px;overflow:hidden">
           <div style="overflow-x:auto">
@@ -70,26 +77,40 @@ export async function afterRender() {
       cargarPedidos()
     })
   })
+
+  document.querySelectorAll('.btn-filtro-pago').forEach(btn => {
+    btn.addEventListener('click', () => {
+      filtroPagoActual = btn.dataset.estadoPago
+      document.querySelectorAll('.btn-filtro-pago').forEach(b => {
+        b.classList.remove('btn--active')
+      })
+      btn.classList.add('btn--active')
+      cargarPedidos()
+    })
+  })
 }
 
 async function cargarPedidos() {
   const tbody = document.getElementById('pedidos-table-body')
   if (!tbody) return
 
-    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:var(--space-2xl) 0;color:var(--text-tertiary)"><div class="spinner" style="margin:0 auto"></div></td></tr>'
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:var(--space-2xl) 0;color:var(--text-tertiary)"><div class="spinner" style="margin:0 auto"></div></td></tr>'
 
   try {
-    const data = await pedidos.listar(filtroActual ? { estado: filtroActual } : {})
+    const filtros = {}
+    if (filtroActual) filtros.estado = filtroActual
+    if (filtroPagoActual) filtros.estado_pago = filtroPagoActual
+    const data = await pedidos.listar(filtros)
 
     if (!data || data.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:var(--space-2xl) 0;color:var(--text-tertiary)">No hay pedidos</td></tr>'
+      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:var(--space-2xl) 0;color:var(--text-tertiary)">No hay pedidos</td></tr>'
       return
     }
 
     tbody.innerHTML = data.map(p => `
       <tr style="border-bottom:1px solid var(--border-light);transition:background var(--duration-fast) var(--ease-smooth)">
         <td style="padding:var(--space-sm) var(--space-md);color:var(--text-primary);font-size:var(--text-caption);font-weight:var(--weight-semibold)">#${p.id}</td>
-        <td style="padding:var(--space-sm) var(--space-md);color:var(--text-secondary);font-size:var(--text-caption)">${p.cliente_id?.slice(0, 8) || '-'}...</td>
+        <td style="padding:var(--space-sm) var(--space-md);color:var(--text-secondary);font-size:var(--text-caption)">${p.perfiles?.nombre_completo || p.cliente_id?.slice(0, 8) || '-'}</td>
         <td style="padding:var(--space-sm) var(--space-md);color:var(--text-primary);font-size:var(--text-caption);font-weight:var(--weight-semibold)">${formatPrecio(p.total_pedido)}</td>
         <td style="padding:var(--space-sm) var(--space-md);font-size:var(--text-caption)">
           <select class="select-estado" style="font-size:var(--text-small);border:1px solid var(--border-light);border-radius:8px;padding:4px 8px;color:var(--text-primary);background:var(--bg-primary);cursor:pointer" data-pedido-id="${p.id}">
@@ -99,9 +120,19 @@ async function cargarPedidos() {
             <option value="cancelado" ${p.estado === 'cancelado' ? 'selected' : ''}>Cancelado</option>
           </select>
         </td>
+        <td style="padding:var(--space-sm) var(--space-md);font-size:var(--text-caption)">
+          <span class="badge ${p.estado_pago === 'pagado' ? 'badge-success' : p.estado_pago === 'en_revision' ? 'badge-warning' : p.estado_pago === 'fallido' ? 'badge-error' : 'badge'}">${p.estado_pago === 'pagado' ? 'Pagado' : p.estado_pago === 'en_revision' ? 'En revisión' : p.estado_pago === 'fallido' ? 'No pagado' : 'Sin pago'}</span>
+          ${p.pago_referencia ? `<div style="font-size:var(--text-small);color:var(--text-tertiary);margin-top:2px">Ref: ${p.pago_referencia}</div>` : ''}
+        </td>
         <td style="padding:var(--space-sm) var(--space-md);color:var(--text-secondary);font-size:var(--text-small)">${formatDate(p.created_at)}</td>
         <td style="padding:var(--space-sm) var(--space-md);text-align:right;font-size:var(--text-caption)">
-          <a href="#/pedidos/${p.id}" class="btn btn--ghost btn--sm" style="font-size:var(--text-small)">Ver</a>
+          <div style="display:flex;gap:6px;justify-content:flex-end;align-items:center;flex-wrap:wrap">
+            ${p.estado_pago === 'en_revision' ? `
+              <button class="btn btn--primary btn--sm btn-confirmar-pago" data-pedido-id="${p.id}" style="font-size:var(--text-small)">Confirmar pago</button>
+              <button class="btn btn--ghost btn--sm btn-rechazar-pago" data-pedido-id="${p.id}" style="font-size:var(--text-small)">Rechazar</button>
+            ` : ''}
+            <a href="#/admin/pedidos/${p.id}" class="btn btn--ghost btn--sm" style="font-size:var(--text-small)">Ver</a>
+          </div>
         </td>
       </tr>
     `).join('')
@@ -119,7 +150,37 @@ async function cargarPedidos() {
         }
       })
     })
+
+    tbody.querySelectorAll('.btn-confirmar-pago').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const id = parseInt(btn.dataset.pedidoId)
+        if (!confirm(`¿Confirmar el pago del pedido #${id}?`)) return
+        btn.disabled = true
+        try {
+          await pedidos.confirmarPago(id)
+          showToast(`Pago del pedido #${id} confirmado`, 'success')
+        } catch (err) {
+          showToast(err.message, 'error')
+        }
+        await cargarPedidos()
+      })
+    })
+
+    tbody.querySelectorAll('.btn-rechazar-pago').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const id = parseInt(btn.dataset.pedidoId)
+        if (!confirm(`¿Rechazar el pago del pedido #${id}? El cliente podrá reintentar.`)) return
+        btn.disabled = true
+        try {
+          await pedidos.rechazarPago(id)
+          showToast(`Pago del pedido #${id} rechazado`, 'success')
+        } catch (err) {
+          showToast(err.message, 'error')
+        }
+        await cargarPedidos()
+      })
+    })
   } catch (err) {
-    tbody.innerHTML = `<tr><td colspan="6" class="text-center py-8 text-red-400">Error: ${err.message}</td></tr>`
+    tbody.innerHTML = `<tr><td colspan="7" class="text-center py-8 text-red-400">Error: ${err.message}</td></tr>`
   }
 }

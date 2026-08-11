@@ -17,20 +17,30 @@ describe('SPA fallback', () => {
   });
 });
 
+describe('Config endpoint', () => {
+  it('GET /config.js should return APP_CONFIG as JS', async () => {
+    const res = await request(app).get('/config.js');
+    expect(res.status).toBe(200);
+    expect(res.headers['content-type']).toContain('javascript');
+    expect(res.text).toContain('window.APP_CONFIG');
+    expect(res.text).toContain('API_BASE_URL');
+  });
+});
+
 describe('Security headers', () => {
   it('should return Permissions-Policy header', async () => {
     const res = await request(app).get('/api/health');
     expect(res.headers).toHaveProperty('permissions-policy');
   });
 
-  it('should return Cross-Origin-Opener-Policy header', async () => {
+  it('should NOT send Cross-Origin-Opener-Policy header (desactivado en servidor)', async () => {
     const res = await request(app).get('/api/health');
-    expect(res.headers).toHaveProperty('cross-origin-opener-policy');
+    expect(res.headers).not.toHaveProperty('cross-origin-opener-policy');
   });
 
-  it('should return Cross-Origin-Resource-Policy header', async () => {
+  it('should NOT send Cross-Origin-Resource-Policy header (desactivado en servidor)', async () => {
     const res = await request(app).get('/api/health');
-    expect(res.headers).toHaveProperty('cross-origin-resource-policy');
+    expect(res.headers).not.toHaveProperty('cross-origin-resource-policy');
   });
 
   it('should return X-Content-Type-Options: nosniff', async () => {
@@ -115,6 +125,47 @@ describe('Admin endpoints (no auth)', () => {
 
   it('GET /api/admin/categorias without auth should return 401', async () => {
     const res = await request(app).get('/api/admin/categorias');
+    expect(res.status).toBe(401);
+  });
+});
+
+describe('Pagos endpoints (no auth)', () => {
+  it('GET /api/pagos/datos without token should return 401', async () => {
+    const res = await request(app).get('/api/pagos/datos');
+    expect(res.status).toBe(401);
+  });
+
+  it('GET /api/pagos/datos with invalid token should return 401', async () => {
+    const res = await request(app).get('/api/pagos/datos').set('Authorization', 'Bearer token-invalido');
+    expect(res.status).toBe(401);
+  });
+
+  it('POST /api/pagos/pedidos/1/reportar without token should return 401', async () => {
+    const res = await request(app)
+      .post('/api/pagos/pedidos/1/reportar')
+      .send({ referencia: '123456' });
+    expect(res.status).toBe(401);
+  });
+
+  it('POST /api/pagos/pedidos/1/cancelar without token should return 401', async () => {
+    const res = await request(app).post('/api/pagos/pedidos/1/cancelar');
+    expect(res.status).toBe(401);
+  });
+});
+
+describe('Admin pagos endpoints (no auth)', () => {
+  it('GET /api/admin/pedidos with estado_pago filter without token should return 401', async () => {
+    const res = await request(app).get('/api/admin/pedidos?estado_pago=en_revision');
+    expect(res.status).toBe(401);
+  });
+
+  it('POST /api/admin/pedidos/1/pago/confirmar without token should return 401', async () => {
+    const res = await request(app).post('/api/admin/pedidos/1/pago/confirmar');
+    expect(res.status).toBe(401);
+  });
+
+  it('POST /api/admin/pedidos/1/pago/rechazar without token should return 401', async () => {
+    const res = await request(app).post('/api/admin/pedidos/1/pago/rechazar');
     expect(res.status).toBe(401);
   });
 });

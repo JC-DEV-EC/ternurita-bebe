@@ -52,7 +52,10 @@ export const pedidos = {
     const params = new URLSearchParams(filtros).toString()
     return listarWrapper(`/api/admin/pedidos${params ? '?' + params : ''}`)
   },
+  detalle: (id) => request('GET', `/api/admin/pedidos/${id}`),
   cambiarEstado: (id, estado) => request('PUT', `/api/admin/pedidos/${id}/estado`, { estado }),
+  confirmarPago: (id) => request('POST', `/api/admin/pedidos/${id}/pago/confirmar`),
+  rechazarPago: (id) => request('POST', `/api/admin/pedidos/${id}/pago/rechazar`),
 }
 
 export const usuarios = {

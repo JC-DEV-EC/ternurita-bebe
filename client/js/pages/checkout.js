@@ -110,7 +110,7 @@ export async function afterRender() {
       return
     }
 
-    showToast('Pedido creado correctamente', 'success')
+    showToast('Pedido creado. Completa el pago por Banca Móvil', 'success')
     store.carrito = []
     store.carritoCount = 0
     window.location.hash = `#/pedidos/${data.pedido?.pedido_id}`

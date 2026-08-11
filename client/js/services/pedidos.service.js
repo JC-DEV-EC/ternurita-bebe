@@ -43,3 +43,42 @@ export async function crearPedido(payload) {
     return { error: { message: err.message }, data: null }
   }
 }
+
+async function requestPagos(path, options = {}) {
+  const token = store.sesion?.access_token
+  if (!token) return { error: { message: 'No hay sesión activa' }, data: null }
+
+  try {
+    const response = await fetch(`${CONFIG.API_BASE_URL}${path}`, {
+      method: options.method || 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: options.body ? JSON.stringify(options.body) : undefined,
+    })
+    const data = await response.json()
+    if (!response.ok) return { error: data, data: null }
+    return { data, error: null }
+  } catch (err) {
+    return { error: { message: err.message }, data: null }
+  }
+}
+
+export async function obtenerDatosPago() {
+  return requestPagos('/api/pagos/datos')
+}
+
+export async function reportarPago(pedidoId, referencia) {
+  return requestPagos(`/api/pagos/pedidos/${pedidoId}/reportar`, {
+    method: 'POST',
+    body: { referencia },
+  })
+}
+
+export async function cancelarPedido(pedidoId) {
+  return requestPagos(`/api/pagos/pedidos/${pedidoId}/cancelar`, {
+    method: 'POST',
+    body: {},
+  })
+}

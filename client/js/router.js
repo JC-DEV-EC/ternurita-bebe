@@ -18,6 +18,7 @@ const pages = {
   'admin/productos': () => import('./pages/admin/productos.js?v=4'),
   'admin/pedidos':   () => import('./pages/admin/pedidos.js?v=4'),
   'admin/usuarios':  () => import('./pages/admin/usuarios.js?v=4'),
+  'admin/pedido-detalle': () => import('./pages/admin/pedido-detalle.js?v=4'),
 }
 
 const routes = [
@@ -36,6 +37,7 @@ const routes = [
   { pattern: '/admin',         page: 'admin',          auth: 'admin' },
   { pattern: '/admin/productos', page: 'admin/productos', auth: 'admin' },
   { pattern: '/admin/pedidos',   page: 'admin/pedidos',   auth: 'admin' },
+  { pattern: '/admin/pedidos/:id', page: 'admin/pedido-detalle', auth: 'admin' },
   { pattern: '/admin/usuarios',  page: 'admin/usuarios',  auth: 'admin' },
 ]
 
