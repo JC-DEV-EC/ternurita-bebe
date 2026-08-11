@@ -1,9 +1,9 @@
 import { placeholderImg } from '../utils.js'
 
 const stickScrollImages = [
-  'assets/images/img-stikScroll/img1.png',
+  'assets/images/img-stikScroll/img1.jpg',
   'assets/images/img-stikScroll/variedad.jpeg',
-  'assets/images/img-stikScroll/atencion.png',
+  'assets/images/img-stikScroll/atencion.jpg',
 ]
 
 export function renderStickyScroll(panels) {

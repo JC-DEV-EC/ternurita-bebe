@@ -173,11 +173,11 @@ async function cargarGaleria() {
   if (!grid) return
 
   const imagenesCategoria = {
-    'prendas-superiores': 'assets/images/img-categoria-prendas-superiores.png',
-    'prendas-inferiores': 'assets/images/img-categoria-prenda-inferior.png',
-    'mamelucos': 'assets/images/img-categoria-mameluco.png',
-    'exteriores': 'assets/images/img-categoria-exterior.png',
-    'higiene': 'assets/images/img-categoria-higiene.png',
+    'prendas-superiores': 'assets/images/img-categoria-prendas-superiores.jpg',
+    'prendas-inferiores': 'assets/images/img-categoria-prenda-inferior.jpg',
+    'mamelucos': 'assets/images/img-categoria-mameluco.jpg',
+    'exteriores': 'assets/images/img-categoria-exterior.jpg',
+    'higiene': 'assets/images/img-categoria-higiene.jpg',
   }
 
   const { data: categorias } = await import('../services/categorias.service.js').then(m => m.listar())
