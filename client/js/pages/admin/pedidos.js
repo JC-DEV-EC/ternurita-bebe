@@ -30,7 +30,7 @@ export default function render() {
           <button data-estado="entregado" class="btn btn--ghost btn--sm btn-filtro-estado ${filtroActual === 'entregado' ? 'btn--active' : ''}">Entregados</button>
           <button data-estado="cancelado" class="btn btn--ghost btn--sm btn-filtro-estado ${filtroActual === 'cancelado' ? 'btn--active' : ''}">Cancelados</button>
         </div>
-        <div style="display:flex;gap:var(--space-xs);flex-wrap:wrap;margin-bottom:var(--space-lg)" id="filtros-pagos">
+        <div style="display:flex;gap:1%;flex-wrap:wrap;margin-bottom:var(--space-lg)" id="filtros-pagos">
           <button data-estado-pago="" class="btn btn--ghost btn--sm btn-filtro-pago ${!filtroPagoActual ? 'btn--active' : ''}">Todos los pagos</button>
           <button data-estado-pago="en_revision" class="btn btn--ghost btn--sm btn-filtro-pago ${filtroPagoActual === 'en_revision' ? 'btn--active' : ''}">Pagos por confirmar</button>
           <button data-estado-pago="pendiente" class="btn btn--ghost btn--sm btn-filtro-pago ${filtroPagoActual === 'pendiente' ? 'btn--active' : ''}">Sin pago</button>
